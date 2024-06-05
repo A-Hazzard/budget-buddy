@@ -4,6 +4,7 @@ import { CloudDownload, PlusIcon, RotateCw } from "lucide-react";
 import Link from "next/link";
 
 export default function page() {
+
     const groups = [
         {
             title: 'Savings',
@@ -42,6 +43,17 @@ export default function page() {
         },
     ];
 
+    const paycheck =  [
+        {
+            name: 'Pay 1',
+            planned: 900,
+            received: 0,
+        }
+    ]
+    const total = paycheck.reduce((acc, type) => acc + type.planned, 0);
+
+    const formatNumber = (num: number) => num.toLocaleString('en-US')
+
     return (
         <div>
             <header className="px-5 pb-3 sticky flex items-end top-0 z-50 w-full bg-white shadow-md">
@@ -75,21 +87,19 @@ export default function page() {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td className="py-2 border-b">Paycheck 1</td>
-                                <td className="py-2 border-b">$900.00</td>
-                                <td className="py-2 border-b">$0.00</td>
-                            </tr>
-                            <tr>
-                                <td className="py-2 border-b">Paycheck 2</td>
-                                <td className="py-2 border-b">$1,500.00</td>
-                                <td className="py-2 border-b">$0.00</td>
-                            </tr>
+                            {paycheck.map((check, key) => (
+                                <tr key={key}>
+                                    <td className="py-2 border-b">{check.name}</td>
+                                    <td className="py-2 border-b">${formatNumber(check.planned)}</td>
+                                    <td className="py-2 border-b">$0.00</td>
+                                </tr>
+                            ))}
+                            
                         </tbody>
                         <tfoot>
                             <tr className="font-semibold">
                                 <td className="py-2 border-b">Total</td>
-                                <td className="py-2 border-b">$2,400.00</td>
+                                <td className="py-2 border-b">${formatNumber(total)}</td>
                                 <td className="py-2 border-b">$0.00</td>
                             </tr>
                         </tfoot>
@@ -105,6 +115,18 @@ export default function page() {
                         />
                     </div>
                 ))}
+                <button className="p-5 text-blue-600 text-lg font-semibold flex flex-start border border-dotted border-blue-400 rounded-lg">
+                    <PlusIcon /> ADD GROUP
+                </button>
+
+                <div className="mx-auto flex flex-row items-center gap-2 mt-4">
+                    <div className="flex flex-row text-blue-600 items-center gap-3">
+                        <RotateCw /> <p className="text-base text-blue-600">Reset Budget</p>
+                    </div>
+                    <div className="flex flex-row text-blue-600 items-center gap-2">
+                        <CloudDownload /> <p className="text-base text-blue-600">Download as CSV</p>
+                    </div>
+                </div>
             </main>
         </div>
     );
