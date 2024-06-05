@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Anek+Kannada:wght@100..800&family=Poetsen+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Freeman&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base{
+    h1{
+        @apply text-blue-secondary font-secondary text-4xl lg:text-6xl text-center 
+    }
+    h2 {
+        @apply text-blue-secondary font-secondary text-3xl lg:text-5xl text-center 
+    }
+    h3{
+        @apply text-dark font-secondary text-2xl lg:text-5xl text-center
+    }
+    p{
+        @apply text-dark text-lg font-main
+    }
+    img{
+        @apply w-full h-full object-contain
+    }
+}
