@@ -1,18 +1,27 @@
 import { RefObject } from "react"
-import { paycheck } from '@/types/dashboard'
+import { item } from '@/types/dashboard'
 export default function AddItem({
     tableRef,
     nameInputRef,
     plannedInputRef,
     receivedInputRef,
-    paycheck = [],
+    defaultItem = [],
 }: {
     tableRef: RefObject<HTMLTableRowElement>;
     nameInputRef: RefObject<HTMLInputElement>;
     plannedInputRef: RefObject<HTMLInputElement>;
     receivedInputRef: RefObject<HTMLInputElement>;
-    paycheck?: paycheck[];
+    defaultItem: item[];
 }) {
+  const defaultName = () => {
+    if (defaultItem.length === 0) {
+      return 'Item';
+    } else {
+      const prefix = defaultItem[0].name.includes('Item') ? 'Item' : 'Paycheck';
+      return `${prefix} ${defaultItem.length + 1}`;
+    }
+  };
+  console.log(defaultItem)
     return (
         <tr className="shadow-xl px-2" ref={tableRef}>
             <td className="p-2 border-b">
@@ -20,7 +29,7 @@ export default function AddItem({
                     type="text"
                     name="name"
                     id="name"
-                    defaultValue={`Paycheck ${paycheck.length + 1}`}
+                    defaultValue={defaultName()}
                     className="w-full p-2 font-main border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500"
                     ref={nameInputRef}
                 />

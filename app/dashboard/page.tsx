@@ -4,52 +4,18 @@ import ImageWrapper from "@/components/ImageWrapper"
 import { CloudDownload, PlusIcon, RotateCw } from "lucide-react"
 import Link from "next/link"
 import { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from "react"
-import {  groups } from '@/types/dashboard'
+import { groups, types } from '@/types/dashboard'
 import IncomeTable from "@/components/dashboard/IncomeTable"
+import GroupTable from "@/components/dashboard/GroupTable"
 
 export default function Page() {
 
-    const [groups, setGroups] = useState<groups[]>([
-        {
-            title: 'Savings',
-            types: [
-                {
-                    name: 'PC',
-                    planned: 1000,
-                    received: 0,
-                },
-                {
-                    name: 'IPhone',
-                    planned: 1500,
-                    received: 0,
-                },
-                {
-                    name: 'PC',
-                    planned: 10000,
-                    received: 0,
-                },
-            ],
-        },
-        {
-            title: 'Church',
-            types: [
-                {
-                    name: 'Community',
-                    planned: 50,
-                    received: 0,
-                },
-                {
-                    name: 'Missions',
-                    planned: 200,
-                    received: 0,
-                },
-            ],
-        },
-    ])
+    const [groups, setGroups] = useState<groups[]>([])
 
     const [addGroup, setAddGroup] = useState<boolean>(false)
-    const [newGroupTitle, setNewGroupTitle] = useState<string>("")
+    const [groupTypes, setGroupTypes] = useState<types[]>([]);
 
+    const [newGroupTitle, setNewGroupTitle] = useState<string>("")
 
     const buttonRef = useRef<HTMLInputElement>(null)
 
@@ -97,14 +63,16 @@ export default function Page() {
 
                 <IncomeTable />
 
-                {/* {groups.map((group, key) => (
+                {groups.map((group, key) => (
                     <div key={key}>
-                        <Group
+                        <GroupTable
                             title={group.title}
-                            types={group.types}
+                            types={groupTypes}
+                            setTypes={setGroupTypes}
                         />
+
                     </div>
-                ))} */}
+                ))}
 
                 {addGroup ? (
                     <div className="p-5 shadow-md">

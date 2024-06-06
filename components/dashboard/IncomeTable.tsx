@@ -1,10 +1,10 @@
-import { groups, paycheck } from "@/types/dashboard"
+import { groups, item } from "@/types/dashboard"
 import { KeyboardEvent, useEffect, useRef, useState } from "react"
 import AddItem from "./AddItem"
 
 export default function IncomeTable() {
- 
-    const [paycheck, setPayCheck] = useState<paycheck[]>([
+
+    const [paycheck, setPayCheck] = useState<item[]>([
         {
             name: 'Paycheck 1',
             planned: 0,
@@ -35,7 +35,7 @@ export default function IncomeTable() {
             {
                 name: nameValue,
                 planned: parseFloat(plannedValue.replace(/[^0-9.-]+/g, '')) || 0,
-                received: parseFloat(plannedValue.replace(/[^0-9.-]+/g, '')) || 0,
+                received: parseFloat(receivedValue.replace(/[^0-9.-]+/g, '')) || 0,
             },
         ]);
 
@@ -75,7 +75,7 @@ export default function IncomeTable() {
                             nameInputRef={nameInputRef}
                             plannedInputRef={plannedInputRef}
                             receivedInputRef={receivedInputRef}
-                            paycheck={paycheck}
+                            defaultItem={paycheck}
                         />
                     )}
 
@@ -83,10 +83,10 @@ export default function IncomeTable() {
 
 
                 <tfoot>
-                    <tr className="font">
+                    <tr className="font-semibold">
                         <td className="py-2 border-b">Total</td>
                         <td className="py-2 border-b">${formatNumber(plannedTotal)}</td>
-                        <td className="py-2 border-b">{formatNumber(receivedTotal)}</td>
+                        <td className="py-2 border-b">${formatNumber(receivedTotal)}</td>
                     </tr>
                 </tfoot>
             </table>

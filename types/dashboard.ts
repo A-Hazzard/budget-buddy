@@ -1,4 +1,9 @@
-export type paycheck = {
+export type types = {
+    name: string,
+    planned: number,
+    received: number
+}
+export type item = {
     name: string,
     planned: number,
     received: number
