@@ -19,35 +19,35 @@ export default function IncomeTable() {
     const plannedInputRef = useRef<HTMLInputElement>(null)
     const receivedInputRef = useRef<HTMLInputElement>(null)
     const tableRef = useRef<HTMLTableRowElement>(null)
-const [incomeTotal, setIncomeTotal] = useState(0);
+    const [incomeTotal, setIncomeTotal] = useState(0);
 
-useEffect(() => {
-  const total = paycheck.reduce((acc, item) => acc + item.received, 0);
-  setIncomeTotal(total);
-}, [paycheck]);
+    useEffect(() => {
+        const total = paycheck.reduce((acc, item) => acc + item.received, 0);
+        setIncomeTotal(total);
+    }, [paycheck]);
 
     const plannedTotal = paycheck.reduce((acc, type) => acc + type.planned, 0)
     const receivedTotal = paycheck.reduce((acc, type) => acc + type.received, 0)
     const formatNumber = (num: number) => num.toLocaleString('en-US')
 
-  const handleClickOutside = (event: MouseEvent) => {
-    if (tableRef.current && !tableRef.current.contains(event.target as Node)) {
-        const nameValue = nameInputRef.current ? nameInputRef.current.value : "";
-        const plannedValue = plannedInputRef.current ? plannedInputRef.current.value : "";
-        const receivedValue = receivedInputRef.current ? receivedInputRef.current.value : "";
+    const handleClickOutside = (event: MouseEvent) => {
+        if (tableRef.current && !tableRef.current.contains(event.target as Node)) {
+            const nameValue = nameInputRef.current ? nameInputRef.current.value : "";
+            const plannedValue = plannedInputRef.current ? plannedInputRef.current.value : "";
+            const receivedValue = receivedInputRef.current ? receivedInputRef.current.value : "";
 
-        setPayCheck((prevPayCheck) => [
-            ...prevPayCheck,
-            {
-                name: nameValue,
-                planned: parseFloat(plannedValue.replace(/[^0-9.-]+/g, '')) || 0,
-                received: parseFloat(receivedValue.replace(/[^0-9.-]+/g, '')) || 0,
-            },
-        ]);
+            setPayCheck((prevPayCheck) => [
+                ...prevPayCheck,
+                {
+                    name: nameValue,
+                    planned: parseFloat(plannedValue.replace(/[^0-9.-]+/g, '')) || 0,
+                    received: parseFloat(receivedValue.replace(/[^0-9.-]+/g, '')) || 0,
+                },
+            ]);
 
-        setAddIncome(false);
-    }
-};
+            setAddIncome(false);
+        }
+    };
 
     useEffect(() => {
         document.addEventListener('click', handleClickOutside, true)
@@ -98,5 +98,5 @@ useEffect(() => {
             </table>
             <p onClick={() => setAddIncome(true)} className="text-blue-500 mt-4 cursor-pointer">Add Income</p>
         </div>
-  )
+    )
 }
