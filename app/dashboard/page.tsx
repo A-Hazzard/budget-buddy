@@ -72,10 +72,18 @@ export default function Page() {
     const [newGroupError, setNewGroupError] = useState<string>("")
     const [newGroupTitle, setNewGroupTitle] = useState<string>("")
 
+
+    const nameInputRef = useRef<HTMLInputElement>(null)
+    const plannedInputRef = useRef<HTMLInputElement>(null)
+    const receivedInputRef = useRef<HTMLInputElement>(null)
     const buttonRef = useRef<HTMLInputElement>(null)
     const tableRef = useRef<HTMLTableRowElement>(null)
 
-    const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => setNewGroupTitle(event.target.value)
+
+
+
+    const total = paycheck.reduce((acc, type) => acc + type.planned, 0)
+    const formatNumber = (num: number) => num.toLocaleString('en-US')
 
     const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter' && newGroupTitle.trim() !== "") {
@@ -88,23 +96,32 @@ export default function Page() {
             setNewGroupTitle('')
         }
     }
-    const handleAddGroup = () => setAddGroup(true)
-
     const handleClickOutside = (event: MouseEvent) => {
         buttonRef.current && !buttonRef.current.contains(event.target as Node) ? setAddGroup(false) : null
-        tableRef.current && !tableRef.current.contains(event.target as Node) ? setAddIncome(false) : null
+
+        if (tableRef.current && !tableRef.current.contains(event.target as Node)) {
+            const nameValue = nameInputRef.current ? nameInputRef.current.value : ""
+            const plannedValue = plannedInputRef.current ? plannedInputRef.current.value : ""
+            const receivedValue = receivedInputRef.current ? receivedInputRef.current.value : ""
+            console.log(nameValue, plannedValue, receivedValue, ' are values')
+
+            setPayCheck((prevPayCheck) => [
+                ...prevPayCheck, {
+                    name: nameValue,
+                    planned: parseFloat(plannedValue) || 0,
+                    received: parseFloat(receivedValue) || 0
+                }
+            ])
+            setAddIncome(false)
+        }
     }
 
     useEffect(() => {
         document.addEventListener('click', handleClickOutside, true)
-
         return () => document.removeEventListener('click', handleClickOutside, true)
-
     }, [])
 
-    const total = paycheck.reduce((acc, type) => acc + type.planned, 0)
 
-    const formatNumber = (num: number) => num.toLocaleString('en-US')
 
     return (
         <div>
@@ -153,26 +170,30 @@ export default function Page() {
                                             type="text"
                                             name="name"
                                             id="name"
-                                            defaultValue="Paycheck"
+                                            defaultValue={`Paycheck ${paycheck.length + 1}`}
                                             className="w-full p-2 font-main border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500"
+                                            ref={nameInputRef}
                                         />
-
                                     </td>
                                     <td className="p-2 border-b">
                                         <input
                                             type="text"
                                             name="name"
                                             id="name"
-                                            placeholder="$0.00"
-                                            className="w-full p-2 border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500" />
+                                            defaultValue="$0.00"
+                                            className="w-full p-2 border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500" 
+                                            ref={plannedInputRef}
+                                        />
                                     </td>
                                     <td className="p-2 border-b">
                                         <input
                                             type="text"
                                             name="name"
                                             id="name"
-                                            placeholder="$0.00"
-                                            className="w-full p-2 border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500" />
+                                            defaultValue="$0.00"
+                                            className="w-full p-2 border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500" 
+                                            ref={receivedInputRef}
+                                        />
                                     </td>
                                 </tr>
                             )}
@@ -209,14 +230,15 @@ export default function Page() {
                             id="title"
                             placeholder="Group Name"
                             value={newGroupTitle}
-                            onChange={handleInputChange}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setNewGroupTitle(e.target.value)}
                             onKeyDown={handleKeyDown}
                             className="w-full h-12 p-3 font-main border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                         />
+
                     </div>
                 ) : (
                     <button
-                        onClick={handleAddGroup}
+                        onClick={() => setAddGroup(true)}
                         className="p-5 text-blue-600 text-lg font-semibold flex flex-start border border-dotted border-blue-400 rounded-lg"
                     >
                         <PlusIcon /> ADD GROUP
