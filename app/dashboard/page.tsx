@@ -52,7 +52,11 @@ export default function Page() {
                 </div>
 
                 <Link href="/">
-                    <ImageWrapper src="/logo.svg" alt="logo" />
+                    <ImageWrapper 
+                        src="/logo.svg" 
+                        alt="logo"
+                        priority 
+                    />
                 </Link>
             </header>
 

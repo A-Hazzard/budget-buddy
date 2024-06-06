@@ -21,7 +21,7 @@ export default function ImageWrapper({
         alt={alt}
         width={150}
         height={150}
-        loading="lazy"
+        loading={`${!priority ? 'lazy' : 'eager'}`}
         priority={priority || false}
         className={imageClassName}
       />
