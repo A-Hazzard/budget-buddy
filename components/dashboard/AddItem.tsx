@@ -1,22 +1,18 @@
-"use client"
-
-import { useState, useRef, useEffect, ChangeEvent, KeyboardEvent, RefObject } from "react"
+import { RefObject } from "react"
 import { paycheck } from '@/types/dashboard'
-export default function AddItem(
-    {
-        tableRef, 
-        nameInputRef, 
-        plannedInputRef, 
-        receivedInputRef, 
-        paycheck
-    }:
-    {
-        tableRef: RefObject<HTMLTableRowElement>, 
-        nameInputRef: RefObject<HTMLInputElement>, 
-        plannedInputRef: RefObject<HTMLInputElement>, 
-        receivedInputRef: RefObject<HTMLInputElement>,
-        paycheck: paycheck[]
-    }){
+export default function AddItem({
+    tableRef,
+    nameInputRef,
+    plannedInputRef,
+    receivedInputRef,
+    paycheck = [],
+}: {
+    tableRef: RefObject<HTMLTableRowElement>;
+    nameInputRef: RefObject<HTMLInputElement>;
+    plannedInputRef: RefObject<HTMLInputElement>;
+    receivedInputRef: RefObject<HTMLInputElement>;
+    paycheck?: paycheck[];
+}) {
     return (
         <tr className="shadow-xl px-2" ref={tableRef}>
             <td className="p-2 border-b">
@@ -50,5 +46,5 @@ export default function AddItem(
                 />
             </td>
         </tr>
-    )
+    );
 }

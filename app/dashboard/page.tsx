@@ -1,12 +1,11 @@
 "use client"
 
 import ImageWrapper from "@/components/ImageWrapper"
-import Group from "@/components/dashboard/Group"
-import AddItem from "@/components/dashboard/AddItem"
 import { CloudDownload, PlusIcon, RotateCw } from "lucide-react"
 import Link from "next/link"
 import { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from "react"
-import { paycheck, groups } from '@/types/dashboard'
+import {  groups } from '@/types/dashboard'
+import IncomeTable from "@/components/dashboard/IncomeTable"
 
 export default function Page() {
 
@@ -47,27 +46,12 @@ export default function Page() {
             ],
         },
     ])
-    const [paycheck, setPayCheck] = useState<paycheck[]>([
-        {
-            name: 'Paycheck 1',
-            planned: 0,
-            received: 0,
-        }
-    ])
+
     const [addGroup, setAddGroup] = useState<boolean>(false)
-    const [addIncome, setAddIncome] = useState<boolean>(false)
-    const [newGroupError, setNewGroupError] = useState<string>("")
     const [newGroupTitle, setNewGroupTitle] = useState<string>("")
 
 
-    const nameInputRef = useRef<HTMLInputElement>(null)
-    const plannedInputRef = useRef<HTMLInputElement>(null)
-    const receivedInputRef = useRef<HTMLInputElement>(null)
     const buttonRef = useRef<HTMLInputElement>(null)
-    const tableRef = useRef<HTMLTableRowElement>(null)
-
-    const total = paycheck.reduce((acc, type) => acc + type.planned, 0)
-    const formatNumber = (num: number) => num.toLocaleString('en-US')
 
     const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter' && newGroupTitle.trim() !== "") {
@@ -82,23 +66,6 @@ export default function Page() {
     }
     const handleClickOutside = (event: MouseEvent) => {
         buttonRef.current && !buttonRef.current.contains(event.target as Node) ? setAddGroup(false) : null
-
-        if (tableRef.current && !tableRef.current.contains(event.target as Node)) {
-            const nameValue = nameInputRef.current ? nameInputRef.current.value : ""
-            const plannedValue = plannedInputRef.current ? plannedInputRef.current.value : ""
-            const receivedValue = receivedInputRef.current ? receivedInputRef.current.value : ""
-            console.log(nameValue, plannedValue, receivedValue, ' are values')
-
-            setPayCheck((prevPayCheck) => [
-                ...prevPayCheck,
-                {
-                    name: nameValue,
-                    planned: parseFloat(plannedValue.replace(/[^0-9.-]+/g, '')) || 0,
-                    received: parseFloat(receivedValue.replace(/[^0-9.-]+/g, '')) || 0,
-                },
-            ]);
-            setAddIncome(false)
-        }
     }
 
     useEffect(() => {
@@ -128,58 +95,16 @@ export default function Page() {
             <main className="px-5 flex flex-col gap-5">
                 <ImageWrapper divClassName="mt-5 w-24 h-24" src="/dashboard/chart.png" alt="chart" />
 
-                <div className="w-full max-w-sm mx-auto bg-white shadow-md rounded-lg p-4">
-                    <div className="mb-4"></div>
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr>
-                                <th className="border-b-2 py-2">
-                                    <h2 className="text-sm text-left font-semibold text-green-600">Income for June</h2>
-                                </th>
-                                <th className="border-b-2 py-2">Planned</th>
-                                <th className="border-b-2 py-2">Received</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paycheck.map((check, key) => (
-                                <tr key={key}>
-                                    <td className="py-2 border-b">{check.name}</td>
-                                    <td className="py-2 border-b">${formatNumber(check.planned)}</td>
-                                    <td className="py-2 border-b">$0.00</td>
-                                </tr>
-                            ))}
-                            {addIncome && (
-                                <AddItem
-                                    tableRef={tableRef}
-                                    nameInputRef={nameInputRef}
-                                    plannedInputRef={plannedInputRef}
-                                    receivedInputRef={receivedInputRef}
-                                    paycheck={paycheck}
-                                />
-                            )}
+                <IncomeTable />
 
-                        </tbody>
-
-
-                        <tfoot>
-                            <tr className="font">
-                                <td className="py-2 border-b">Total</td>
-                                <td className="py-2 border-b">${formatNumber(total)}</td>
-                                <td className="py-2 border-b">$0.00</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                    <p onClick={() => setAddIncome(true)} className="text-blue-500 mt-4 cursor-pointer">Add Income</p>
-                </div>
-
-                {groups.map((group, key) => (
+                {/* {groups.map((group, key) => (
                     <div key={key}>
                         <Group
                             title={group.title}
                             types={group.types}
                         />
                     </div>
-                ))}
+                ))} */}
 
                 {addGroup ? (
                     <div className="p-5 shadow-md">

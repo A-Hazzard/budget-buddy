@@ -10,5 +10,5 @@ export type groups = {
         name: string
         planned: number
         received: number
-    }[]
+    }[],
 }
