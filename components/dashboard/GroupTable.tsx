@@ -15,6 +15,12 @@ export default function GroupTable({
   const [groupTypes, setGroupTypes] = useState<types[]>(types);
 
   const [addIncome, setAddIncome] = useState<boolean>(false)
+  const [groupTotal, setGroupTotal] = useState(0);
+
+  useEffect(() => {
+    const total = groupTypes.reduce((acc, type) => acc + type.received, 0);
+    setGroupTotal(total);
+  }, [groupTypes]);
 
   const nameInputRef = useRef<HTMLInputElement>(null)
   const plannedInputRef = useRef<HTMLInputElement>(null)

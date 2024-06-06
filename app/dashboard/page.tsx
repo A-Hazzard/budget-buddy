@@ -7,39 +7,57 @@ import { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from "react"
 import { groups, types } from '@/types/dashboard'
 import IncomeTable from "@/components/dashboard/IncomeTable"
 import GroupTable from "@/components/dashboard/GroupTable"
+import { PieChart, Pie, ResponsiveContainer, Cell } from 'recharts'
 
 export default function Page() {
+    const [groups, setGroups] = useState<groups[]>([]);
+    const data01 = [
+        { name: 'Group A', value: 400 },
+        { name: 'Group B', value: 300 },
+        { name: 'Group C', value: 300 },
+        { name: 'Group D', value: 200 },
+    ];
 
-    const [groups, setGroups] = useState<groups[]>([])
+    const data02 = [
+        { name: 'A1', value: 100 },
+        { name: 'A2', value: 300 },
+        { name: 'B1', value: 100 },
+        { name: 'B2', value: 80 },
+        { name: 'B3', value: 40 },
+        { name: 'B4', value: 30 },
+        { name: 'B5', value: 50 },
+        { name: 'C1', value: 100 },
+        { name: 'D1', value: 100 },
+        { name: 'D2', value: 100 },
+    ];
+    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
-    const [addGroup, setAddGroup] = useState<boolean>(false)
+    const [addGroup, setAddGroup] = useState<boolean>(false);
     const [groupTypes, setGroupTypes] = useState<types[]>([]);
 
-    const [newGroupTitle, setNewGroupTitle] = useState<string>("")
+    const [newGroupTitle, setNewGroupTitle] = useState<string>('');
 
-    const buttonRef = useRef<HTMLInputElement>(null)
+    const buttonRef = useRef<HTMLInputElement>(null);
 
     const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === 'Enter' && newGroupTitle.trim() !== "") {
+        if (event.key === 'Enter' && newGroupTitle.trim() !== '') {
             const newGroup = {
                 title: newGroupTitle,
                 types: [],
-            }
+            };
 
-            setGroups([...groups, newGroup])
-            setNewGroupTitle('')
+            setGroups([...groups, newGroup]);
+            setNewGroupTitle('');
         }
-    }
+    };
     const handleClickOutside = (event: MouseEvent) => {
-        buttonRef.current && !buttonRef.current.contains(event.target as Node) ? setAddGroup(false) : null
-    }
+        buttonRef.current && !buttonRef.current.contains(event.target as Node) ? setAddGroup(false) : null;
+    };
 
     useEffect(() => {
-        document.addEventListener('click', handleClickOutside, true)
-        return () => document.removeEventListener('click', handleClickOutside, true)
-    }, [])
-
-
+        document.addEventListener('click', handleClickOutside, true);
+        return () => document.removeEventListener('click', handleClickOutside, true);
+    }, []);
 
     return (
         <div>
@@ -52,29 +70,52 @@ export default function Page() {
                 </div>
 
                 <Link href="/">
-                    <ImageWrapper 
-                        src="/logo.svg" 
-                        alt="logo"
-                        priority 
-                    />
+                    <ImageWrapper src="/logo.svg" alt="logo" priority />
                 </Link>
             </header>
 
             <hr />
 
             <main className="px-5 flex flex-col gap-5">
-                <ImageWrapper divClassName="mt-5 w-24 h-24" src="/dashboard/chart.png" alt="chart" />
+                <ResponsiveContainer width="100%" height={400}>
+                    <PieChart>
+                        <Pie
+                            data={data01}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            fill="#8884d8"
+                        >
+                            {data01.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                        </Pie>
+                        <Pie
+                            data={data02}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={100}
+                            outerRadius={120}
+                            fill="#82ca9d"
+                            label
+                        >
+                            {data02.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                        </Pie>
+                        
+                    </PieChart>
+                </ResponsiveContainer>
 
                 <IncomeTable />
 
                 {groups.map((group, key) => (
                     <div key={key}>
-                        <GroupTable
-                            title={group.title}
-                            types={groupTypes}
-                            setTypes={setGroupTypes}
-                        />
-
+                        <GroupTable title={group.title} types={groupTypes} setTypes={setGroupTypes} />
                     </div>
                 ))}
 
@@ -91,7 +132,6 @@ export default function Page() {
                             onKeyDown={handleKeyDown}
                             className="w-full h-12 p-3 font-main border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                         />
-
                     </div>
                 ) : (
                     <button
@@ -112,5 +152,5 @@ export default function Page() {
                 </div>
             </main>
         </div>
-    )
+    );
 }

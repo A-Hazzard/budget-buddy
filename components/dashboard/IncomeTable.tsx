@@ -19,6 +19,12 @@ export default function IncomeTable() {
     const plannedInputRef = useRef<HTMLInputElement>(null)
     const receivedInputRef = useRef<HTMLInputElement>(null)
     const tableRef = useRef<HTMLTableRowElement>(null)
+const [incomeTotal, setIncomeTotal] = useState(0);
+
+useEffect(() => {
+  const total = paycheck.reduce((acc, item) => acc + item.received, 0);
+  setIncomeTotal(total);
+}, [paycheck]);
 
     const plannedTotal = paycheck.reduce((acc, type) => acc + type.planned, 0)
     const receivedTotal = paycheck.reduce((acc, type) => acc + type.received, 0)
