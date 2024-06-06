@@ -2,24 +2,11 @@
 
 import ImageWrapper from "@/components/ImageWrapper"
 import Group from "@/components/dashboard/Group"
+import AddItem from "@/components/dashboard/AddItem"
 import { CloudDownload, PlusIcon, RotateCw } from "lucide-react"
 import Link from "next/link"
 import { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from "react"
-
-type paycheck = {
-    name: string,
-    planned: number,
-    received: number
-}
-
-type groups = {
-    title: string,
-    types: {
-        name: string
-        planned: number
-        received: number
-    }[]
-}
+import { paycheck, groups } from '@/types/dashboard'
 
 export default function Page() {
 
@@ -79,9 +66,6 @@ export default function Page() {
     const buttonRef = useRef<HTMLInputElement>(null)
     const tableRef = useRef<HTMLTableRowElement>(null)
 
-
-
-
     const total = paycheck.reduce((acc, type) => acc + type.planned, 0)
     const formatNumber = (num: number) => num.toLocaleString('en-US')
 
@@ -106,12 +90,13 @@ export default function Page() {
             console.log(nameValue, plannedValue, receivedValue, ' are values')
 
             setPayCheck((prevPayCheck) => [
-                ...prevPayCheck, {
+                ...prevPayCheck,
+                {
                     name: nameValue,
-                    planned: parseFloat(plannedValue) || 0,
-                    received: parseFloat(receivedValue) || 0
-                }
-            ])
+                    planned: parseFloat(plannedValue.replace(/[^0-9.-]+/g, '')) || 0,
+                    received: parseFloat(receivedValue.replace(/[^0-9.-]+/g, '')) || 0,
+                },
+            ]);
             setAddIncome(false)
         }
     }
@@ -164,38 +149,13 @@ export default function Page() {
                                 </tr>
                             ))}
                             {addIncome && (
-                                <tr className="shadow-xl px-2" ref={tableRef}>
-                                    <td className="p-2 border-b">
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            id="name"
-                                            defaultValue={`Paycheck ${paycheck.length + 1}`}
-                                            className="w-full p-2 font-main border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500"
-                                            ref={nameInputRef}
-                                        />
-                                    </td>
-                                    <td className="p-2 border-b">
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            id="name"
-                                            defaultValue="$0.00"
-                                            className="w-full p-2 border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500" 
-                                            ref={plannedInputRef}
-                                        />
-                                    </td>
-                                    <td className="p-2 border-b">
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            id="name"
-                                            defaultValue="$0.00"
-                                            className="w-full p-2 border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500" 
-                                            ref={receivedInputRef}
-                                        />
-                                    </td>
-                                </tr>
+                                <AddItem
+                                    tableRef={tableRef}
+                                    nameInputRef={nameInputRef}
+                                    plannedInputRef={plannedInputRef}
+                                    receivedInputRef={receivedInputRef}
+                                    paycheck={paycheck}
+                                />
                             )}
 
                         </tbody>
