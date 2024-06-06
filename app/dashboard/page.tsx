@@ -1,9 +1,39 @@
+"use client"
+
 import ImageWrapper from "@/components/ImageWrapper";
 import Group from "@/components/dashboard/Group";
 import { CloudDownload, PlusIcon, RotateCw } from "lucide-react";
 import Link from "next/link";
+import { useState, useRef, useEffect } from "react";
 
-export default function page() {
+export default function Page() {
+
+    const [addGroup, setAddGroup] = useState<boolean>(false);
+    const buttonRef = useRef<HTMLButtonElement>(null);
+
+    const handleAddGroup = () => {
+        setAddGroup(true);
+    };
+
+    const handleClickOutside = (event: MouseEvent) => {
+        if (buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
+            setAddGroup(false);
+        }
+    };
+
+    useEffect(() => {
+        const handleClickOutsideWindow = (event: MouseEvent) => {
+            handleClickOutside(event);
+        };
+
+        window.addEventListener("click", handleClickOutsideWindow, true);
+
+        return () => {
+            window.removeEventListener("click", handleClickOutsideWindow, true);
+        };
+    }, []);
+
+
 
     const groups = [
         {
@@ -115,9 +145,28 @@ export default function page() {
                         />
                     </div>
                 ))}
-                <button className="p-5 text-blue-600 text-lg font-semibold flex flex-start border border-dotted border-blue-400 rounded-lg">
-                    <PlusIcon /> ADD GROUP
-                </button>
+
+                {addGroup ? (
+                    <div className="p-5 shadow-md">
+                        <input
+                            type="text"
+                            name="title"
+                            id="title"
+                            placeholder="Group Name"
+                            className="w-full h-12 p-3 font-main border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        />
+                    </div>
+                ) : (
+                        <button 
+                            ref={buttonRef}
+                            onClick={handleAddGroup}
+                            className="p-5 text-blue-600 text-lg font-semibold flex flex-start border border-dotted border-blue-400 rounded-lg">
+                            <PlusIcon /> ADD GROUP
+                        </button>
+                )}
+                
+
+                
 
                 <div className="mx-auto flex flex-row items-center gap-2 mt-4">
                     <div className="flex flex-row text-blue-600 items-center gap-3">

@@ -2,7 +2,7 @@ import Button from "@/components/Button";
 import ImageWrapper from "@/components/ImageWrapper";
 import Link from "next/link";
 
-export default function page() {
+export default function Page() {
     return (
         <div className="px-5">
             <ImageWrapper divClassName="w-28 h-28" src="/logo.svg" alt="logo" />

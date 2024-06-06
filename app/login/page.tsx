@@ -2,7 +2,7 @@ import Button from "@/components/Button";
 import ImageWrapper from "@/components/ImageWrapper";
 import Link from "next/link";
 
-export default function page() {
+export default function Page() {
     return (
         <div className="px-5">
             <Link href="/" className="hover:cursor-pointer">

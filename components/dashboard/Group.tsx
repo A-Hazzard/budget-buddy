@@ -41,8 +41,8 @@ export default function Group({ title, types }: { title: string; types: types[] 
                 <td className="py-2 border-b">$0.00</td>
             </tr>
         </tfoot>
-      </table>
-      <div className="text-blue-500 mt-4 cursor-pointer">Add Item</div>
+        </table>
+        <div className="text-blue-500 mt-4 cursor-pointer">Add Item</div>
     </div>
   );
 }
