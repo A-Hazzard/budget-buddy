@@ -73,7 +73,7 @@ export default function Page() {
     const [newGroupTitle, setNewGroupTitle] = useState<string>("")
 
     const buttonRef = useRef<HTMLInputElement>(null)
-    const inputRef = useRef<HTMLInputElement>(null)
+    const tableRef = useRef<HTMLTableRowElement>(null)
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => setNewGroupTitle(event.target.value)
 
@@ -92,7 +92,7 @@ export default function Page() {
 
     const handleClickOutside = (event: MouseEvent) => {
         buttonRef.current && !buttonRef.current.contains(event.target as Node) ? setAddGroup(false) : null
-        inputRef.current && !inputRef.current.contains(event.target as Node) ? setAddIncome(false) : null
+        tableRef.current && !tableRef.current.contains(event.target as Node) ? setAddIncome(false) : null
     }
 
     useEffect(() => {
@@ -147,14 +147,13 @@ export default function Page() {
                                 </tr>
                             ))}
                             {addIncome && (
-                                <tr className="shadow-xl px-2">
+                                <tr className="shadow-xl px-2" ref={tableRef}>
                                     <td className="p-2 border-b">
                                         <input
                                             type="text"
                                             name="name"
                                             id="name"
                                             defaultValue="Paycheck"
-                                            ref={inputRef}
                                             className="w-full p-2 font-main border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500"
                                         />
 
@@ -165,7 +164,6 @@ export default function Page() {
                                             name="name"
                                             id="name"
                                             placeholder="$0.00"
-                                            ref={inputRef}
                                             className="w-full p-2 border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500" />
                                     </td>
                                     <td className="p-2 border-b">
@@ -174,7 +172,6 @@ export default function Page() {
                                             name="name"
                                             id="name"
                                             placeholder="$0.00"
-                                            ref={inputRef}
                                             className="w-full p-2 border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500" />
                                     </td>
                                 </tr>
