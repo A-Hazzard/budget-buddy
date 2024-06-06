@@ -42,7 +42,7 @@ export default function Group({ title, types }: { title: string; types: types[] 
             </tr>
         </tfoot>
         </table>
-        <div className="text-blue-500 mt-4 cursor-pointer">Add Item</div>
+        <p className="text-blue-500 mt-4 cursor-pointer">Add Item</p>
     </div>
   );
 }

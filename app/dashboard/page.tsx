@@ -23,7 +23,6 @@ type groups = {
 
 export default function Page() {
 
-    const [addGroup, setAddGroup] = useState<boolean>(false)
     const [groups, setGroups] = useState<groups[]>([
         {
             title: 'Savings',
@@ -63,11 +62,13 @@ export default function Page() {
     ])
     const [paycheck, setPayCheck] = useState<paycheck[]>([
         {
-            name: 'Pay 1',
-            planned: 900,
+            name: 'Paycheck 1',
+            planned: 0,
             received: 0,
         }
     ])
+    const [addGroup, setAddGroup] = useState<boolean>(false)
+    const [addIncome, setAddIncome] = useState<boolean>(false)
     const [newGroupError, setNewGroupError] = useState<string>("")
     const [newGroupTitle, setNewGroupTitle] = useState<string>("")
 
@@ -91,15 +92,16 @@ export default function Page() {
 
     const handleClickOutside = (event: MouseEvent) => {
         buttonRef.current && !buttonRef.current.contains(event.target as Node) ? setAddGroup(false) : null
+        inputRef.current && !inputRef.current.contains(event.target as Node) ? setAddIncome(false) : null
     }
 
     useEffect(() => {
         document.addEventListener('click', handleClickOutside, true)
 
         return () => document.removeEventListener('click', handleClickOutside, true)
-        
+
     }, [])
-    
+
     const total = paycheck.reduce((acc, type) => acc + type.planned, 0)
 
     const formatNumber = (num: number) => num.toLocaleString('en-US')
@@ -144,17 +146,52 @@ export default function Page() {
                                     <td className="py-2 border-b">$0.00</td>
                                 </tr>
                             ))}
-                            
+                            {addIncome && (
+                                <tr className="shadow-xl px-2">
+                                    <td className="p-2 border-b">
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            id="name"
+                                            defaultValue="Paycheck"
+                                            ref={inputRef}
+                                            className="w-full p-2 font-main border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500"
+                                        />
+
+                                    </td>
+                                    <td className="p-2 border-b">
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            id="name"
+                                            placeholder="$0.00"
+                                            ref={inputRef}
+                                            className="w-full p-2 border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500" />
+                                    </td>
+                                    <td className="p-2 border-b">
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            id="name"
+                                            placeholder="$0.00"
+                                            ref={inputRef}
+                                            className="w-full p-2 border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500" />
+                                    </td>
+                                </tr>
+                            )}
+
                         </tbody>
+
+
                         <tfoot>
-                            <tr className="font-semibold">
+                            <tr className="font">
                                 <td className="py-2 border-b">Total</td>
                                 <td className="py-2 border-b">${formatNumber(total)}</td>
                                 <td className="py-2 border-b">$0.00</td>
                             </tr>
                         </tfoot>
                     </table>
-                    <div className="text-blue-500 mt-4 cursor-pointer">Add Income</div>
+                    <p onClick={() => setAddIncome(true)} className="text-blue-500 mt-4 cursor-pointer">Add Income</p>
                 </div>
 
                 {groups.map((group, key) => (
@@ -179,7 +216,6 @@ export default function Page() {
                             onKeyDown={handleKeyDown}
                             className="w-full h-12 p-3 font-main border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                         />
-
                     </div>
                 ) : (
                     <button
