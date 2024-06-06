@@ -1,41 +1,30 @@
 "use client"
 
-import ImageWrapper from "@/components/ImageWrapper";
-import Group from "@/components/dashboard/Group";
-import { CloudDownload, PlusIcon, RotateCw } from "lucide-react";
-import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
+import ImageWrapper from "@/components/ImageWrapper"
+import Group from "@/components/dashboard/Group"
+import { CloudDownload, PlusIcon, RotateCw } from "lucide-react"
+import Link from "next/link"
+import { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from "react"
+
+type paycheck = {
+    name: string,
+    planned: number,
+    received: number
+}
+
+type groups = {
+    title: string,
+    types: {
+        name: string
+        planned: number
+        received: number
+    }[]
+}
 
 export default function Page() {
 
-    const [addGroup, setAddGroup] = useState<boolean>(false);
-    const buttonRef = useRef<HTMLButtonElement>(null);
-
-    const handleAddGroup = () => {
-        setAddGroup(true);
-    };
-
-    const handleClickOutside = (event: MouseEvent) => {
-        if (buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
-            setAddGroup(false);
-        }
-    };
-
-    useEffect(() => {
-        const handleClickOutsideWindow = (event: MouseEvent) => {
-            handleClickOutside(event);
-        };
-
-        window.addEventListener("click", handleClickOutsideWindow, true);
-
-        return () => {
-            window.removeEventListener("click", handleClickOutsideWindow, true);
-        };
-    }, []);
-
-
-
-    const groups = [
+    const [addGroup, setAddGroup] = useState<boolean>(false)
+    const [groups, setGroups] = useState<groups[]>([
         {
             title: 'Savings',
             types: [
@@ -71,16 +60,47 @@ export default function Page() {
                 },
             ],
         },
-    ];
-
-    const paycheck =  [
+    ])
+    const [paycheck, setPayCheck] = useState<paycheck[]>([
         {
             name: 'Pay 1',
             planned: 900,
             received: 0,
         }
-    ]
-    const total = paycheck.reduce((acc, type) => acc + type.planned, 0);
+    ])
+    const [newGroupError, setNewGroupError] = useState<string>("")
+    const [newGroupTitle, setNewGroupTitle] = useState<string>("")
+
+    const buttonRef = useRef<HTMLInputElement>(null)
+    const inputRef = useRef<HTMLInputElement>(null)
+
+    const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => setNewGroupTitle(event.target.value)
+
+    const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter' && newGroupTitle.trim() !== "") {
+            const newGroup = {
+                title: newGroupTitle,
+                types: [],
+            }
+
+            setGroups([...groups, newGroup])
+            setNewGroupTitle('')
+        }
+    }
+    const handleAddGroup = () => setAddGroup(true)
+
+    const handleClickOutside = (event: MouseEvent) => {
+        buttonRef.current && !buttonRef.current.contains(event.target as Node) ? setAddGroup(false) : null
+    }
+
+    useEffect(() => {
+        document.addEventListener('click', handleClickOutside, true)
+
+        return () => document.removeEventListener('click', handleClickOutside, true)
+        
+    }, [])
+    
+    const total = paycheck.reduce((acc, type) => acc + type.planned, 0)
 
     const formatNumber = (num: number) => num.toLocaleString('en-US')
 
@@ -149,24 +169,26 @@ export default function Page() {
                 {addGroup ? (
                     <div className="p-5 shadow-md">
                         <input
+                            ref={buttonRef}
                             type="text"
                             name="title"
                             id="title"
                             placeholder="Group Name"
+                            value={newGroupTitle}
+                            onChange={handleInputChange}
+                            onKeyDown={handleKeyDown}
                             className="w-full h-12 p-3 font-main border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                         />
+
                     </div>
                 ) : (
-                        <button 
-                            ref={buttonRef}
-                            onClick={handleAddGroup}
-                            className="p-5 text-blue-600 text-lg font-semibold flex flex-start border border-dotted border-blue-400 rounded-lg">
-                            <PlusIcon /> ADD GROUP
-                        </button>
+                    <button
+                        onClick={handleAddGroup}
+                        className="p-5 text-blue-600 text-lg font-semibold flex flex-start border border-dotted border-blue-400 rounded-lg"
+                    >
+                        <PlusIcon /> ADD GROUP
+                    </button>
                 )}
-                
-
-                
 
                 <div className="mx-auto flex flex-row items-center gap-2 mt-4">
                     <div className="flex flex-row text-blue-600 items-center gap-3">
@@ -178,5 +200,5 @@ export default function Page() {
                 </div>
             </main>
         </div>
-    );
+    )
 }
