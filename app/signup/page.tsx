@@ -1,19 +1,61 @@
+'use client'
+
 import Button from "@/components/Button";
 import ImageWrapper from "@/components/ImageWrapper";
 import Link from "next/link";
-
+import { FormEvent } from "react";
+//@ts-ignore
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "@/firebase"; // Assuming you have exported auth and db from firebase.ts
+import { useRouter } from 'next/navigation'
+import { FirebaseError } from "firebase/app";
 export default function Page() {
+
+    const router = useRouter()
+    //Add users to database
+    async function signup(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+
+        const email = e.currentTarget.email.value;
+        const password = e.currentTarget.password.value;
+        try {
+            //Create new user
+            const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredentials.user;
+
+            console.log(user);
+
+            //Add user to firestore
+            await setDoc(doc(db, 'users', user.uid), {
+                email: user.email,
+            });
+
+            console.log('User Signed up');
+            router.push('/dashboard');
+        } catch (error: any) {
+            if (error.code === 'auth/email-already-in-use') {
+                console.log('Email already in use, redirecting to dashboard...');
+                router.push('/dashboard');
+            } else {
+                console.error('Error signing up:', error);
+                // You can show an error message to the user here
+            }
+        }
+    }
+
+
     return (
         <div className="px-5">
             <ImageWrapper divClassName="w-28 h-28" src="/logo.svg" alt="logo" />
 
-            <main className="p-5 w-[50%] mx-auto rounded-lg shadow-lg flex flex-col justify-center">
+            <main className="p-5 md:w-[50%] mx-auto rounded-lg shadow-lg flex flex-col justify-center">
                 <div className="flex flex-col items-center">
                     <h1>Create an Account</h1>
                     <p>To start Budgeting right</p>
                 </div>
 
-                <form className="flex flex-col items-left mt-5">
+                <form onSubmit={signup} className="flex flex-col items-left mt-5">
                     <div className="flex flex-col">
                         <label className="text-dark font-main" htmlFor="email">Email</label>
                         <input

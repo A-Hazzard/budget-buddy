@@ -1,9 +1,8 @@
 "use client"
-
 import { useRouter } from 'next/navigation'
-
 export default function Button({ className, text }: { className?: string, text: string }) {
   const router = useRouter()
+
 
   return <button 
             onClick={() => router.push('/signup')} 

@@ -1,22 +1,20 @@
 "use client"
 
+import Link from "next/link"
 import ImageWrapper from "@/components/ImageWrapper"
 import { CloudDownload, PlusIcon, RotateCw } from "lucide-react"
-import Link from "next/link"
+import { PieChart, Pie, ResponsiveContainer, Cell } from 'recharts'
 import { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from "react"
 import { groups, types } from '@/types/dashboard'
-import IncomeTable from "@/components/dashboard/IncomeTable"
 import GroupTable from "@/components/dashboard/GroupTable"
-import { PieChart, Pie, ResponsiveContainer, Cell } from 'recharts'
-
+import IncomeTable from "@/components/dashboard/IncomeTable"
+// import { getAuth, onAuthStateChanged, signInWithRedirect, GoogleAuthProvider } from 'firebase/auth'
 export default function Page() {
     const [groups, setGroups] = useState<groups[]>([]);
     const data01 = [
         { name: 'Group A', value: 400 },
         { name: 'Group B', value: 300 },
-        
     ];
-
     const data02 = [
         { name: 'A1', value: 100 },
         { name: 'A2', value: 300 },
