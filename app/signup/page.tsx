@@ -49,9 +49,8 @@ export default function Page() {
             if (user) {
                 setUser(user);
                 router.replace('/dashboard')
-            }else{
-                setAuthenticated(false)
-            }
+            }else setAuthenticated(false)
+            
         });
     }, [router])
 

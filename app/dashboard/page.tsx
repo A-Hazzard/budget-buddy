@@ -15,6 +15,16 @@ import { useRouter } from 'next/navigation'
 // import { getAuth, onAuthStateChanged, signInWithRedirect, GoogleAuthProvider } from 'firebase/auth'
 
 export default function Page() {
+    /*
+        Group Title
+        Group Type [
+            {   
+                name: string,
+                planned: number,
+                received: number
+            }
+        ]
+    */
     const [groups, setGroups] = useState<groups[]>([]);
     const [user, setUser] = useState<User | null>(null);
 
