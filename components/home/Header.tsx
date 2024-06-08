@@ -5,10 +5,10 @@ import { ChevronDown } from 'lucide-react';
 import Button from "../Button";
 import { useMediaQuery } from "react-responsive";
 import Link from "next/link";
-
+import {useRouter} from 'next/navigation'
 export default function Header() {
     const isMobile = useMediaQuery({ maxWidth: 767 });
-
+    const router = useRouter()
   return (
     <header className="pb-4 pl-3 pr-3 border-b flex items-end justify-between">
         <div className="flex items-end gap-3">
@@ -33,7 +33,10 @@ export default function Header() {
               </nav>
             )}
         </div>
-        <Button text="Sign Up"/>
+      <button
+      onClick={()=> router.push('/signup')}
+        className={`px-4 h-12 bg-blue-primary text-white font-primary rounded-full`}>Sign Up
+      </button>
     </header>
   )
 }

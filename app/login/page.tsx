@@ -18,16 +18,15 @@ export default function Page() {
 
         const email = e.currentTarget.email.value;
         const password = e.currentTarget.password.value;
-        
         try {
             //Create new user
             await signInWithEmailAndPassword(auth, email, password);
             console.log("User logged in successfully!");
-            router.replace('/dashboard')
+            router.push('/dashboard')
         } catch (error: any) {
             if (error.code === 'auth/email-already-in-use') {
                 console.log('Email already in use, redirecting to dashboard...');
-                router.replace('/dashboard');
+                router.push('/dashboard');
             } else {
                 console.error("Error logging in:", error);
             }
@@ -35,12 +34,11 @@ export default function Page() {
     }
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user: User) => {
+        const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
             if (user) {
                 setUser(user);
-                router.replace('/dashboard')
+                router.push('/dashboard')
             } else setAuthenticated(false)
-            
         });
     }, [router])
 
@@ -77,8 +75,10 @@ export default function Page() {
                             />
                         </div>
 
-                        <Button className="mt-3" text="Sign In" />
-
+                        <button
+                            type="submit"
+                            className={`px-4 h-12 bg-blue-primary text-white font-primary rounded-full  mt-3`}>Sign In
+                        </button>
                         <Link className="mt-3 text-blue-primary font-semibold text-center" href="/reset">Forgot Password?</Link>
 
                     </form>

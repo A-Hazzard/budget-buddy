@@ -45,10 +45,10 @@ export default function Page() {
     }
 
     useEffect(()=> {
-        const unsubscribe = onAuthStateChanged(auth, (user: User) => {
+        const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
             if (user) {
                 setUser(user);
-                router.replace('/dashboard')
+                router.push('/dashboard')
             }else setAuthenticated(false)
             
         });

@@ -1,19 +1,18 @@
-export type types = {
-    name: string,
-    planned: number,
-    received: number
-}
-export type item = {
-    name: string,
-    planned: number,
-    received: number
-}
+export type Types = {
+  name: string;
+  planned: number;
+  spent: number;
+};
 
-export type groups = {
-    title: string,
-    types: {
-        name: string
-        planned: number
-        received: number
-    }[],
-}
+export type Groups = {
+  id?: string;
+  types?: Array<Types>;
+  title: string;
+  user_id?: string;
+};
+
+export type Income = {
+  id?: string;
+  types?: Array<Types>;
+  user_id?: string;
+};

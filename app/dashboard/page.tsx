@@ -5,27 +5,19 @@ import ImageWrapper from "@/components/ImageWrapper"
 import { CloudDownload, PlusIcon, RotateCw } from "lucide-react"
 import { PieChart, Pie, ResponsiveContainer, Cell } from 'recharts'
 import { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from "react"
-import { groups, types } from '@/types/dashboard'
+import { Groups, Income } from '@/types/dashboard'
 import GroupTable from "@/components/dashboard/GroupTable"
 import IncomeTable from "@/components/dashboard/IncomeTable"
-import { auth } from '@/firebase'
+import { auth, db } from '@/firebase'
 //@ts-ignore
 import { onAuthStateChanged, User } from 'firebase/auth'
 import { useRouter } from 'next/navigation'
-// import { getAuth, onAuthStateChanged, signInWithRedirect, GoogleAuthProvider } from 'firebase/auth'
+import { collection, onSnapshot, query, QuerySnapshot, where } from "firebase/firestore"
+import { FirebaseError } from "firebase/app"
 
 export default function Page() {
-    /*
-        Group Title
-        Group Type [
-            {   
-                name: string,
-                planned: number,
-                received: number
-            }
-        ]
-    */
-    const [groups, setGroups] = useState<groups[]>([]);
+    const [groups, setGroups] = useState<Groups[]>([]);
+    const [income, setIncome] = useState<Income[]>([]);
     const [user, setUser] = useState<User | null>(null);
 
     const router = useRouter()
@@ -40,25 +32,29 @@ export default function Page() {
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
     const [addGroup, setAddGroup] = useState<boolean>(false);
-    const [groupTypes, setGroupTypes] = useState<types[]>([]);
 
     const [newGroupTitle, setNewGroupTitle] = useState<string>('');
 
     const buttonRef = useRef<HTMLInputElement>(null);
 
+    //Create new empty group with inputted title when user presses the enter key
     const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter' && newGroupTitle.trim() !== '') {
             const newGroup = {
                 title: newGroupTitle,
                 types: [],
             };
-
             setGroups([...groups, newGroup]);
             setNewGroupTitle('');
         }
     };
-    const handleClickOutside = (event: MouseEvent) => {
-        buttonRef.current && !buttonRef.current.contains(event.target as Node) ? setAddGroup(false) : null;
+
+    //Remove the add groups input field when user clicks anywhere besides the input field
+    const handleClickOutside = (event: MouseEvent) => buttonRef.current && !buttonRef.current.contains(event.target as Node) ? setAddGroup(false) : null;
+
+    const logOut = async () => {
+        await auth.signOut();
+        router.push('/login');
     };
 
     useEffect(() => {
@@ -67,7 +63,7 @@ export default function Page() {
     }, []);
 
     useEffect(()=> {
-        const unsubscribe = onAuthStateChanged(auth, (user: User) => {
+        const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
             if(user){
                 setUser(user)
             }else{
@@ -76,16 +72,59 @@ export default function Page() {
             }
         })
 
-        //Clean up subscription on unmount
-        return ()=> unsubscribe()
+        // Subscribe to Firebase Auth state changes
+        const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                console.log(`${user.email}'s user ID is '${user.uid}'`);
+                // Query Firestore for budget items where user_id matches the current user's UID
+                const budgetQuery = query(collection(db, 'budgetItem'), where('user_id', '==', user.uid));
+                const incomeQuery = query(collection(db, 'income'), where('user_id', '==', user.uid));
+                // Subscribe to Firestore query snapshot changes
+                const unsubscribeBudget = onSnapshot(budgetQuery, (querySnapshot) => {
+                    // Map query snapshot documents to an array of objects
+                    const docsList = querySnapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }));
+                    // Update the budgetItems state with the fetched documents
+                    setGroups(docsList as Groups[]);
+                },
+                    (error: FirebaseError) => console.error(`Error fetching documents: ${error.code}`)
+                );
+
+                const unsubscribeIncome = onSnapshot(incomeQuery, (querySnapshot) => {
+                    // Map query snapshot documents to an array of objects
+                    const docsList = querySnapshot.docs.map((doc) => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }));
+                    // Update the Income state with the fetched documents
+                    setIncome(docsList as Income[]);
+                },
+                    (error: FirebaseError) => console.error(`Error fetching documents: ${error.code}`)
+                );
+
+                // Cleanup Firestore subscription when the component unmounts
+                return () => unsubscribeIncome();
+            } else {
+                // Handle case when user is not authenticated
+            }
+        });
+
+        //Clean up sub & unsubscribe on unmount
+        return ()=> {
+             unsubscribeAuth()
+             unsubscribe()
+        }
     }, [router])
 
-    //If user is logged in, display dashboard
+
     if(user){
         return (
             <div>
                 <header className="px-5 pb-3 sticky flex items-end top-0 z-50 w-full bg-white shadow-md">
                     <div className="w-full">
+                        <button onClick={logOut}>Logout</button>
                         <h1 className="text-left">June 2024</h1>
                         <p className="font-semibold">
                             $1,800.00 <span className="font-light">left to budget</span>
@@ -134,11 +173,14 @@ export default function Page() {
                         </PieChart>
                     </ResponsiveContainer>
 
-                    <IncomeTable />
+                    <IncomeTable income={income}/>
 
                     {groups.map((group, key) => (
                         <div key={key}>
-                            <GroupTable title={group.title} types={groupTypes} setTypes={setGroupTypes} />
+                            <GroupTable 
+                                title={group.title}
+                                types={group.types ?? []}
+                                />
                         </div>
                     ))}
 
