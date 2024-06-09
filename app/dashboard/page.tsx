@@ -196,6 +196,7 @@ export default function Page() {
                         <div key={key}>
                             <GroupTable
                                 groupID={group.id || ''}
+                                key={key}
                                 title={group.title}
                                 types={group.types ?? []}
                             />

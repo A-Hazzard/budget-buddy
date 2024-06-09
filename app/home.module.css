@@ -2,5 +2,5 @@
     @apply flex flex-col justify-center p-5;
 }
 .bottomSection {
-  @apply px-3 mt-10 flex flex-col justify-center relative bg-[url('/coinBackground.svg')] lg:bg-[url('')] bg-no-repeat bg-center bg-cover bg-[#DEF7E5] ;
+  @apply mt-10 flex flex-col justify-center relative bg-[url('/coinBackground.svg')] lg:bg-[url('')] bg-no-repeat bg-center bg-cover bg-[#DEF7E5] ;
 }

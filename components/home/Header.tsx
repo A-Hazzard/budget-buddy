@@ -1,14 +1,26 @@
 "use client"
 
 import Image from "next/image"
-import { ChevronDown } from 'lucide-react';
-import Button from "../Button";
-import { useMediaQuery } from "react-responsive";
-import Link from "next/link";
 import {useRouter} from 'next/navigation'
+import { auth } from "@/firebase";
+import { User, onAuthStateChanged } from "firebase/auth";
+import { useEffect, useState } from "react";
 export default function Header() {
-    const isMobile = useMediaQuery({ maxWidth: 767 });
+    // const isMobile = useMediaQuery({ maxWidth: 767 });
     const router = useRouter()
+    const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
+        if (user) {
+          setUser(user);
+        } else {
+          setUser(null);
+        }
+      });
+    }
+  }, []);
   return (
     <header className="pb-4 pl-3 pr-3 border-b flex items-end justify-between">
         <div className="flex items-end gap-3">
@@ -21,21 +33,11 @@ export default function Header() {
                 />
             </div>
 
-            {isMobile ? (
-            <ChevronDown className="h-7 w-7 ml-1 " />
-            ) : (
-              <nav>
-                <ul className="flex gap-3">
-                    <li><Link href="#" className="font-primary cursor-pointer hover:underline hover:text-xl  transition-all">Learn to Budget</Link></li>
-                    <li><Link href="#" className="font-primary cursor-pointer hover:underline hover:text-xl  transition-all">Features</Link></li>
-                    <li><Link href="#" className="font-primary cursor-pointer hover:underline hover:text-xl  transition-all">About</Link></li>
-                </ul>
-              </nav>
-            )}
         </div>
       <button
-      onClick={()=> router.push('/signup')}
-        className={`px-4 h-12 bg-blue-primary text-white font-primary rounded-full`}>Sign Up
+        onClick={()=> user ? router.push('/dashboard') : router.push('/signup')}
+        className={`px-4 h-12 bg-blue-primary text-white font-primary rounded-full`}>
+        {user ? "Go to Dashboard" : "Create Account"}
       </button>
     </header>
   )

@@ -51,7 +51,7 @@ export default function Page() {
                     <ImageWrapper divClassName="w-28 h-28" src="/logo.svg" alt="logo" />
                 </Link>
 
-                <main className="p-5 w-[50%] mx-auto rounded-lg shadow-lg flex flex-col justify-center">
+                <main className="p-5 md:w-[50%] mx-auto rounded-lg shadow-lg flex flex-col justify-center">
                     <div className="flex flex-col items-center">
                         <h1>Sign In</h1>
                         <p>To start Budgeting right</p>

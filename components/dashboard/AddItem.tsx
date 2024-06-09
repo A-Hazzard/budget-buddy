@@ -1,13 +1,19 @@
 import { Trash2 } from "lucide-react";
 import { RefObject } from "react"
+import { Types } from '@/types/dashboard'
+import { arrayRemove, doc, updateDoc } from "firebase/firestore";
+import { db } from "@/firebase";
 export default function AddItem({
     tableRef,
     nameInputRef,
     plannedInputRef,
     spentInputRef,
     defaultItem,
-    editable
-    
+    editable,
+    types,
+    typeIndex,
+    id
+
 }: {
     tableRef: RefObject<HTMLTableRowElement>;
     nameInputRef: RefObject<HTMLInputElement>;
@@ -15,13 +21,44 @@ export default function AddItem({
     spentInputRef: RefObject<HTMLInputElement>;
     defaultItem: string,
     editable?: boolean
+    types?: Types[],
+    typeIndex?: number,
+    id?: string
 }) {
+
+    const removeElementFromArray = async () => {
+        try {
+            if(defaultItem === "Paycheck"){
+                //@ts-ignore
+                const documentRef = doc(db, 'income', id); // Replace 'your_collection' with the actual collection name
+                //@ts-ignore
+                const newTypes = types?.splice(typeIndex, 1);
+                // Update the document by removing the specified element from the array
+                await updateDoc(documentRef, {
+                    "types": types
+                });
+            }else{
+                //@ts-ignore
+                const documentRef = doc(db, 'budgetItem', id); // Replace 'your_collection' with the actual collection name
+                //@ts-ignore
+                const newTypes = types?.splice(typeIndex, 1);
+                // Update the document by removing the specified element from the array
+                await updateDoc(documentRef, {
+                    "types": types
+                });
+            }
+
+            console.log('Element removed from array successfully!');
+        } catch (error) {
+            console.error('Error removing element from array: ', error);
+        }
+    };
 
 
     return (
         <tr className="shadow-xl px-2" ref={tableRef}>
             <td className={`p-2 border-b ${editable && 'flex gap-3 items-center'}`}>
-                {editable && <Trash2 />}
+                {editable && <Trash2 onClick={removeElementFromArray} className="w-6 h-6 text-red-500 cursor-pointer" />}
                 <input
                     type="text"
                     name="name"

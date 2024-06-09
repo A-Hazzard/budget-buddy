@@ -4,6 +4,7 @@ export default function Button({ className, text, path }: { className?: string; 
   const router = useRouter();
   return (
     <button
+      onClick={() => path ? router.push(`${path}`) : null}
       className={`px-4 h-12 bg-blue-primary text-white font-primary rounded-full ${className}`}
     >
       {text}
