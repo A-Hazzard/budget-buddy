@@ -75,7 +75,7 @@ export default function Home() {
 
 
             <p className="mt-3 w-full font-semibold  text-center lg:text-left">
-                With EveryDollar, you can effortlessly plan for all your needs, whether it&apos;s saving for a cutting-edge
+                With Budget Buddy, you can effortlessly plan for all your needs, whether it&apos;s saving for a cutting-edge
 
                 mermaid costume or stocking up on snacks for a cozy staycation. Customize your budget with unlimited
                 categories!
@@ -96,7 +96,7 @@ export default function Home() {
 
             <p className="text-center w-full font-semibold lg:text-left">
                 Stay on top of your finances with real-time updates from your bank. Easily monitor your balances and
-                upcoming expenses on the go. EveryDollar keeps you informed, so you can stay on track!
+                upcoming expenses on the go. Budget Buddy keeps you informed, so you can stay on track!
               </p>
             </div>
           </div>
