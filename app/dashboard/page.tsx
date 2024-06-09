@@ -15,6 +15,7 @@ import { onAuthStateChanged, User } from 'firebase/auth'
 import { addDoc, collection, getDocs, onSnapshot, query, updateDoc, where } from "firebase/firestore"
 import { useRouter } from 'next/navigation'
 import * as XLSX from 'xlsx'
+import randomColor from 'randomcolor';
 
 export default function Page() {
     const [groups, setGroups] = useState<Groups[]>([])
@@ -24,15 +25,23 @@ export default function Page() {
     const [totalGroupsPlanned, setTotalGroupsPlanned] = useState<number>(0);
     const [availableBudget, setAvailableBudget] = useState<number>(0);
     const router = useRouter()
-    const data01 = [
-        { name: 'Group A', value: 400 },
-        { name: 'Group B', value: 300 },
-    ]
-    const data02 = [
-        { name: 'A1', value: 100 },
-        { name: 'A2', value: 300 },
-    ]
-    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
+
+    const getRandomColor = () => {
+        return randomColor({
+            luminosity: 'bright',
+            format: 'rgba',
+            alpha: 0.8,
+        });
+    }; const incomeData = income.flatMap((incomeItem) =>
+        incomeItem.types?.map((type) => ({ name: type.name, value: type.planned })) || []
+    );
+
+    const groupData = groups.map((group) => ({
+        name: group.title,
+        value: group.types?.reduce((sum, type) => sum + type.planned, 0) || 0,
+    }));
+
+    const data01 = [...incomeData, ...groupData];
 
     const [addGroup, setAddGroup] = useState<boolean>(false)
 
@@ -171,50 +180,50 @@ export default function Page() {
         XLSX.writeFile(wb, 'budget-data.xlsx');
     }
 
-const resetBudget = async () => {
-  if (user) {
-    try {
-      // Query all budget items and income documents for the current user
-      const budgetItemQuery = query(
-        collection(db, "budgetItem"),
-        where("user_id", "==", user.uid)
-      );
-      const incomeQuery = query(
-        collection(db, "income"),
-        where("user_id", "==", user.uid)
-      );
+    const resetBudget = async () => {
+        if (user) {
+            try {
+                // Query all budget items and income documents for the current user
+                const budgetItemQuery = query(
+                    collection(db, "budgetItem"),
+                    where("user_id", "==", user.uid)
+                );
+                const incomeQuery = query(
+                    collection(db, "income"),
+                    where("user_id", "==", user.uid)
+                );
 
-      // Get all the documents from the queries
-      const budgetItemDocs = await getDocs(budgetItemQuery);
-      const incomeDocs = await getDocs(incomeQuery);
+                // Get all the documents from the queries
+                const budgetItemDocs = await getDocs(budgetItemQuery);
+                const incomeDocs = await getDocs(incomeQuery);
 
-      // Update each document to reset the planned and spent fields
-      const updatePromises:any = [];
+                // Update each document to reset the planned and spent fields
+                const updatePromises: any = [];
 
-      budgetItemDocs.forEach((doc) => {
-        const docRef = doc.ref;
-        const types = doc.data().types || [];
-        const updatedTypes = types.map((type: any) => ({ ...type, planned: 0, spent: 0 }));
-        const updatePromise = updateDoc(docRef, { types: updatedTypes });
-        updatePromises.push(updatePromise);
-      });
+                budgetItemDocs.forEach((doc) => {
+                    const docRef = doc.ref;
+                    const types = doc.data().types || [];
+                    const updatedTypes = types.map((type: any) => ({ ...type, planned: 0, spent: 0 }));
+                    const updatePromise = updateDoc(docRef, { types: updatedTypes });
+                    updatePromises.push(updatePromise);
+                });
 
-      incomeDocs.forEach((doc) => {
-        const docRef = doc.ref;
-        const types = doc.data().types || [];
-        const updatedTypes = types.map((type: any) => ({ ...type, planned: 0, spent: 0 }));
-        const updatePromise = updateDoc(docRef, { types: updatedTypes });
-        updatePromises.push(updatePromise);
-      });
+                incomeDocs.forEach((doc) => {
+                    const docRef = doc.ref;
+                    const types = doc.data().types || [];
+                    const updatedTypes = types.map((type: any) => ({ ...type, planned: 0, spent: 0 }));
+                    const updatePromise = updateDoc(docRef, { types: updatedTypes });
+                    updatePromises.push(updatePromise);
+                });
 
-      // Wait for all updates to complete
-      await Promise.all(updatePromises);
-      console.log("Budget reset successfully");
-    } catch (error) {
-      console.error("Error resetting budget:", error);
-    }
-  }
-};
+                // Wait for all updates to complete
+                await Promise.all(updatePromises);
+                console.log("Budget reset successfully");
+            } catch (error) {
+                console.error("Error resetting budget:", error);
+            }
+        }
+    };
 
 
 
@@ -346,29 +355,16 @@ const resetBudget = async () => {
                                 cy="50%"
                                 outerRadius={80}
                                 fill="#8884d8"
-                            >
-                                {data01.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Pie
-                                data={data02}
-                                dataKey="value"
-                                nameKey="name"
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={100}
-                                outerRadius={120}
-                                fill="#82ca9d"
                                 label
                             >
-                                {data02.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                {data01.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={getRandomColor()} />
                                 ))}
                             </Pie>
-
                         </PieChart>
                     </ResponsiveContainer>
+
+
 
                     <IncomeTable userID={user.uid} />
 
@@ -407,13 +403,13 @@ const resetBudget = async () => {
                     )}
 
                     <div className="mx-auto flex flex-row items-center gap-2 mt-4">
-                        <div onClick={resetBudget}  className="flex flex-row text-blue-600 items-center cursor-pointer gap-3">
+                        <div onClick={resetBudget} className="flex flex-row text-blue-600 items-center cursor-pointer gap-3">
                             <RotateCw /> <p className="text-base text-blue-600">Reset Budget</p>
                         </div>
                         <div onClick={generateExcelData} className="flex flex-row text-blue-600 items-center cursor-pointer gap-2">
-                           
-                                <CloudDownload /> <p className="text-base text-blue-600">Download as CSV</p>
-                          </div>
+
+                            <CloudDownload /> <p className="text-base text-blue-600">Download as CSV</p>
+                        </div>
                     </div>
                 </main>
             </div>

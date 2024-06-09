@@ -104,7 +104,7 @@ export default function GroupTable(
         <thead>
           <tr>
             <th className="border-b-2 py-2">
-              <h2 className="text-sm text-left font-semibold text-green-600">{title}</h2>
+              <h2 className="text-sm text-left font-semibold text-[#0088FE]">{title}</h2>
             </th>
             <th className="border-b-2 py-2">Planned</th>
             <th className="border-b-2 py-2">Spent</th>
