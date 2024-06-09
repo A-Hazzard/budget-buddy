@@ -12,9 +12,9 @@ import IncomeTable from "@/components/dashboard/IncomeTable"
 import { auth, db } from '@/firebase'
 import { FirebaseError } from "firebase/app"
 import { onAuthStateChanged, User } from 'firebase/auth'
-import { addDoc, collection, onSnapshot, orderBy, query, where } from "firebase/firestore"
+import { addDoc, collection, getDocs, onSnapshot, query, updateDoc, where } from "firebase/firestore"
 import { useRouter } from 'next/navigation'
-// import { CSVLink } from 'react-csv';
+import * as XLSX from 'xlsx'
 
 export default function Page() {
     const [groups, setGroups] = useState<Groups[]>([])
@@ -73,6 +73,151 @@ export default function Page() {
         await auth.signOut()
         router.push('/login')
     }
+
+    const generateExcelData = () => {
+        const wb = XLSX.utils.book_new();
+        const ws_data = [['Income', 'Planned', 'Spent']];
+
+        income.forEach((incomeItem) => {
+            incomeItem.types?.forEach((type) => {
+                ws_data.push([type.name, formatNumber(type.planned), formatNumber(type.spent)]);
+            });
+        });
+
+        const incomePlannedTotal = income.reduce((acc, incomeItem) => {
+            const plannedAmount = incomeItem.types?.reduce((a, b) => a + b.planned, 0) || 0;
+            return acc + plannedAmount;
+        }, 0);
+        const incomeSpentTotal = income.reduce((acc, incomeItem) => {
+            const spentAmount = incomeItem.types?.reduce((a, b) => a + b.spent, 0) || 0;
+            return acc + spentAmount;
+        }, 0);
+        ws_data.push(['Total', formatNumber(incomePlannedTotal), formatNumber(incomeSpentTotal)]);
+
+        ws_data.push(['', '', '']);
+        ws_data.push(['Groups', 'Planned', 'Spent']);
+
+        groups.forEach((group) => {
+            ws_data.push([`${group.title}`, '', '']);
+            group.types?.forEach((type) => {
+                ws_data.push([type.name, formatNumber(type.planned), formatNumber(type.spent)]);
+            });
+            const groupPlannedTotal = group.types?.reduce((acc, type) => acc + type.planned, 0) || 0;
+            const groupSpentTotal = group.types?.reduce((acc, type) => acc + type.spent, 0) || 0;
+            ws_data.push(['Total', formatNumber(groupPlannedTotal), formatNumber(groupSpentTotal)]);
+            ws_data.push(['', '', '']);
+        });
+
+        const leftToBudget = totalIncomePlanned - totalGroupsPlanned;
+        ws_data.push(['', '', '']);
+        ws_data.push(['Left to Budget', formatNumber(leftToBudget), '']);
+
+        const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+        const boldStyle = { font: { bold: true } };
+
+        // Apply bold style to specific cells
+        const applyBoldStyle = (cell: string) => {
+            if (!ws[cell]) {
+                ws[cell] = { v: '' };  // Ensure the cell exists before setting its style
+            }
+            if (!ws[cell].s) {
+                ws[cell].s = {};
+            }
+            ws[cell].s.font = boldStyle.font;
+        }
+
+        applyBoldStyle('A1');
+        applyBoldStyle('B1');
+        applyBoldStyle('C1');
+
+        let rowIndex = 2;
+        income.forEach((incomeItem) => {
+            incomeItem.types?.forEach(() => {
+                rowIndex++;
+            });
+        });
+
+        applyBoldStyle(`A${rowIndex + 1}`);
+        applyBoldStyle(`B${rowIndex + 1}`);
+        applyBoldStyle(`C${rowIndex + 1}`);
+
+        rowIndex += 3;
+
+        applyBoldStyle(`A${rowIndex}`);
+        applyBoldStyle(`B${rowIndex}`);
+        applyBoldStyle(`C${rowIndex}`);
+
+        rowIndex += 1;
+
+        groups.forEach((group) => {
+            applyBoldStyle(`A${rowIndex}`);
+            rowIndex++;
+            group.types?.forEach(() => {
+                rowIndex++;
+            });
+            applyBoldStyle(`A${rowIndex}`);
+            applyBoldStyle(`B${rowIndex}`);
+            applyBoldStyle(`C${rowIndex}`);
+            rowIndex += 2;
+        });
+
+        rowIndex += 2;
+
+        applyBoldStyle(`A${rowIndex}`);
+        applyBoldStyle(`B${rowIndex}`);
+
+        XLSX.utils.book_append_sheet(wb, ws, 'Budget Data');
+        XLSX.writeFile(wb, 'budget-data.xlsx');
+    }
+
+const resetBudget = async () => {
+  if (user) {
+    try {
+      // Query all budget items and income documents for the current user
+      const budgetItemQuery = query(
+        collection(db, "budgetItem"),
+        where("user_id", "==", user.uid)
+      );
+      const incomeQuery = query(
+        collection(db, "income"),
+        where("user_id", "==", user.uid)
+      );
+
+      // Get all the documents from the queries
+      const budgetItemDocs = await getDocs(budgetItemQuery);
+      const incomeDocs = await getDocs(incomeQuery);
+
+      // Update each document to reset the planned and spent fields
+      const updatePromises:any = [];
+
+      budgetItemDocs.forEach((doc) => {
+        const docRef = doc.ref;
+        const types = doc.data().types || [];
+        const updatedTypes = types.map((type: any) => ({ ...type, planned: 0, spent: 0 }));
+        const updatePromise = updateDoc(docRef, { types: updatedTypes });
+        updatePromises.push(updatePromise);
+      });
+
+      incomeDocs.forEach((doc) => {
+        const docRef = doc.ref;
+        const types = doc.data().types || [];
+        const updatedTypes = types.map((type: any) => ({ ...type, planned: 0, spent: 0 }));
+        const updatePromise = updateDoc(docRef, { types: updatedTypes });
+        updatePromises.push(updatePromise);
+      });
+
+      // Wait for all updates to complete
+      await Promise.all(updatePromises);
+      console.log("Budget reset successfully");
+    } catch (error) {
+      console.error("Error resetting budget:", error);
+    }
+  }
+};
+
+
+
     const formatNumber = (num: number): string => num.toLocaleString("en-US")
 
     useEffect(() => {
@@ -170,8 +315,8 @@ export default function Page() {
                     <div className="w-full">
                         <button onClick={logOut}>Logout</button>
                         <h1 className="text-left">
-                            {new Date().toLocaleString('default', { month: 'long', year: 'numeric'})}
-                            </h1>
+                            {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}
+                        </h1>
                         <div className="flex gap-1">
 
                             <p className={`font-main font-semibold ${availableBudget < 0 ? 'text-red-500' : 'text-green-500'}`}>
@@ -262,12 +407,13 @@ export default function Page() {
                     )}
 
                     <div className="mx-auto flex flex-row items-center gap-2 mt-4">
-                        <div className="flex flex-row text-blue-600 items-center gap-3">
+                        <div onClick={resetBudget}  className="flex flex-row text-blue-600 items-center cursor-pointer gap-3">
                             <RotateCw /> <p className="text-base text-blue-600">Reset Budget</p>
                         </div>
-                        <div className="flex flex-row text-blue-600 items-center gap-2">
-                            <CloudDownload /> <p className="text-base text-blue-600">Download as CSV</p>
-                        </div>
+                        <div onClick={generateExcelData} className="flex flex-row text-blue-600 items-center cursor-pointer gap-2">
+                           
+                                <CloudDownload /> <p className="text-base text-blue-600">Download as CSV</p>
+                          </div>
                     </div>
                 </main>
             </div>
