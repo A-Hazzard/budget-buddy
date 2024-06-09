@@ -38,6 +38,9 @@ importers:
       recharts:
         specifier: ^2.12.7
         version: 2.12.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      starlight:
+        specifier: ^0.3.9
+        version: 0.3.9
       xlsx:
         specifier: ^0.18.5
         version: 0.18.5
@@ -48,6 +51,9 @@ importers:
       '@types/node':
         specifier: ^20
         version: 20.14.1
+      '@types/randomcolor':
+        specifier: ^0.5.9
+        version: 0.5.9
       '@types/react':
         specifier: ^18
         version: 18.3.3
@@ -589,6 +595,9 @@ packages:
 
   '@types/prop-types@15.7.12':
     resolution: {integrity: sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==}
+
+  '@types/randomcolor@0.5.9':
+    resolution: {integrity: sha512-k58cfpkK15AKn1m+oRd9nh5BnuiowhbyvBBdAzcddtARMr3xRzP0VlFaAKovSG6N6Knx08EicjPlOMzDejerrQ==}
 
   '@types/react-csv@1.1.10':
     resolution: {integrity: sha512-PESAyASL7Nfi/IyBR3ufd8qZkyoS+7jOylKmJxRZUZLFASLo4NZaRsJ8rNP8pCcbIziADyWBbLPD1nPddhsL4g==}
@@ -3216,6 +3225,9 @@ packages:
   stack-trace@0.0.10:
     resolution: {integrity: sha512-KGzahc7puUKkzyMt+IqAep+TVNbKP+k2Lmwhub39m1AsTSkaDutx56aDCo+HLDzf/D26BIHTJWNiTG1KAJiQCg==}
 
+  starlight@0.3.9:
+    resolution: {integrity: sha512-pOZUSpeLrUi891CI6z6OD0vJrG9Ue0B8CSn4vIl/rKgFV9V9xPBDob1AIaE2baLxxkYtJx+djUOCiXnrekeegg==}
+
   statuses@1.5.0:
     resolution: {integrity: sha512-OpZ3zP+jT1PI7I8nemJX4AKmAX070ZkYPVWV/AaKTJl+tXCTGyVdC1a4SL8RUQYEwk/f34ZX8UTykN68FwrqAA==}
     engines: {node: '>= 0.6'}
@@ -4300,6 +4312,8 @@ snapshots:
       undici-types: 5.26.5
 
   '@types/prop-types@15.7.12': {}
+
+  '@types/randomcolor@0.5.9': {}
 
   '@types/react-csv@1.1.10':
     dependencies:
@@ -7443,6 +7457,8 @@ snapshots:
     optional: true
 
   stack-trace@0.0.10: {}
+
+  starlight@0.3.9: {}
 
   statuses@1.5.0: {}
 
