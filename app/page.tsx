@@ -109,7 +109,7 @@ export default function Home() {
                 View All Your Financial Accounts Consolidated
               </h3>
 
-            <p className="text-center lg:text-left font-semibold w-[80%]">
+            <p className="text-center lg:text-left font-semibold lg:w-[80%]">
                 Manage all your financial accounts effortlessly in a single location, eliminating the need to juggle
                 multiple apps to keep track of your finances.
             </p>
