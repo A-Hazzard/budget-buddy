@@ -1,19 +1,19 @@
 "use client"
 
 import Link from "next/link"
-import ImageWrapper from "@/components/ImageWrapper"
 import { CloudDownload, PlusIcon, RotateCw } from "lucide-react"
 import { PieChart, Pie, ResponsiveContainer, Cell } from 'recharts'
 import { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from "react"
 import { Groups, Income } from '@/types/dashboard'
+import ImageWrapper from "@/components/ImageWrapper"
 import GroupTable from "@/components/dashboard/GroupTable"
 import IncomeTable from "@/components/dashboard/IncomeTable"
-import { auth, db } from '@/firebase'
 //@ts-ignore
-import { onAuthStateChanged, User } from 'firebase/auth'
-import { useRouter } from 'next/navigation'
-import { collection, onSnapshot, query, QuerySnapshot, where } from "firebase/firestore"
+import { auth, db } from '@/firebase'
 import { FirebaseError } from "firebase/app"
+import { onAuthStateChanged, User } from 'firebase/auth'
+import { collection, onSnapshot, query, where } from "firebase/firestore"
+import { useRouter } from 'next/navigation'
 
 export default function Page() {
     const [groups, setGroups] = useState<Groups[]>([]);
@@ -62,64 +62,67 @@ export default function Page() {
         return () => document.removeEventListener('click', handleClickOutside, true);
     }, []);
 
-    useEffect(()=> {
-        const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
-            if(user){
-                setUser(user)
-            }else{
-                setUser(null)
-                router.push('/login')
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+
+            const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
+                if (user) {
+                    setUser(user)
+                } else {
+                    setUser(null)
+                    router.push('/login')
+                }
+            })
+
+            // Subscribe to Firebase Auth state changes
+            const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    console.log(`${user.email}'s user ID is '${user.uid}'`);
+                    // Query Firestore for budget items where user_id matches the current user's UID
+                    const budgetQuery = query(collection(db, 'budgetItem'), where('user_id', '==', user.uid));
+                    const incomeQuery = query(collection(db, 'income'), where('user_id', '==', user.uid));
+                    // Subscribe to Firestore query snapshot changes
+                    const unsubscribeBudget = onSnapshot(budgetQuery, (querySnapshot) => {
+                        // Map query snapshot documents to an array of objects
+                        const docsList = querySnapshot.docs.map((doc) => ({
+                            id: doc.id,
+                            ...doc.data(),
+                        }));
+                        // Update the budgetItems state with the fetched documents
+                        setGroups(docsList as Groups[]);
+                    },
+                        (error: FirebaseError) => console.error(`Error fetching documents: ${error.code}`)
+                    );
+
+                    const unsubscribeIncome = onSnapshot(incomeQuery, (querySnapshot) => {
+                        // Map query snapshot documents to an array of objects
+                        const docsList = querySnapshot.docs.map((doc) => ({
+                            id: doc.id,
+                            ...doc.data(),
+                        }));
+                        // Update the Income state with the fetched documents
+                        setIncome(docsList as Income[]);
+                    },
+                        (error: FirebaseError) => console.error(`Error fetching documents: ${error.code}`)
+                    );
+
+                    // Cleanup Firestore subscription when the component unmounts
+                    return () => unsubscribeIncome();
+                } else {
+                    // Handle case when user is not authenticated
+                }
+            });
+
+            //Clean up sub & unsubscribe on unmount
+            return () => {
+                unsubscribeAuth()
+                unsubscribe()
             }
-        })
-
-        // Subscribe to Firebase Auth state changes
-        const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                console.log(`${user.email}'s user ID is '${user.uid}'`);
-                // Query Firestore for budget items where user_id matches the current user's UID
-                const budgetQuery = query(collection(db, 'budgetItem'), where('user_id', '==', user.uid));
-                const incomeQuery = query(collection(db, 'income'), where('user_id', '==', user.uid));
-                // Subscribe to Firestore query snapshot changes
-                const unsubscribeBudget = onSnapshot(budgetQuery, (querySnapshot) => {
-                    // Map query snapshot documents to an array of objects
-                    const docsList = querySnapshot.docs.map((doc) => ({
-                        id: doc.id,
-                        ...doc.data(),
-                    }));
-                    // Update the budgetItems state with the fetched documents
-                    setGroups(docsList as Groups[]);
-                },
-                    (error: FirebaseError) => console.error(`Error fetching documents: ${error.code}`)
-                );
-
-                const unsubscribeIncome = onSnapshot(incomeQuery, (querySnapshot) => {
-                    // Map query snapshot documents to an array of objects
-                    const docsList = querySnapshot.docs.map((doc) => ({
-                        id: doc.id,
-                        ...doc.data(),
-                    }));
-                    // Update the Income state with the fetched documents
-                    setIncome(docsList as Income[]);
-                },
-                    (error: FirebaseError) => console.error(`Error fetching documents: ${error.code}`)
-                );
-
-                // Cleanup Firestore subscription when the component unmounts
-                return () => unsubscribeIncome();
-            } else {
-                // Handle case when user is not authenticated
-            }
-        });
-
-        //Clean up sub & unsubscribe on unmount
-        return ()=> {
-             unsubscribeAuth()
-             unsubscribe()
         }
     }, [router])
 
 
-    if(user){
+    if (user) {
         return (
             <div>
                 <header className="px-5 pb-3 sticky flex items-end top-0 z-50 w-full bg-white shadow-md">
@@ -173,14 +176,15 @@ export default function Page() {
                         </PieChart>
                     </ResponsiveContainer>
 
-                    <IncomeTable income={income}/>
+                    <IncomeTable userID={user.uid} />
 
                     {groups.map((group, key) => (
                         <div key={key}>
-                            <GroupTable 
+                            <GroupTable
+                                groupID={group.id || ''}
                                 title={group.title}
                                 types={group.types ?? []}
-                                />
+                            />
                         </div>
                     ))}
 

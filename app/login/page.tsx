@@ -1,5 +1,4 @@
 'use client'
-import Button from "@/components/Button";
 import ImageWrapper from "@/components/ImageWrapper";
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
@@ -34,12 +33,15 @@ export default function Page() {
     }
 
     useEffect(() => {
+        if (typeof window !== 'undefined') {
+
         const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
             if (user) {
                 setUser(user);
                 router.push('/dashboard')
             } else setAuthenticated(false)
         });
+    }
     }, [router])
 
     if (!authenticated) {

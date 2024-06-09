@@ -44,14 +44,18 @@ export default function Page() {
         }
     }
 
-    useEffect(()=> {
-        const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
-            if (user) {
-                setUser(user);
-                router.push('/dashboard')
-            }else setAuthenticated(false)
-            
-        });
+    useEffect(() => {
+        // Ensure Firebase Auth code runs only in the client-side
+        if (typeof window !== 'undefined') {
+            const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
+                if (user) {
+                    setUser(user);
+                    router.push('/dashboard')
+                } else {
+                    setAuthenticated(false);
+                }
+            });
+        }
     }, [router])
 
 
