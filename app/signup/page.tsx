@@ -9,7 +9,7 @@ import { User, onAuthStateChanged, createUserWithEmailAndPassword } from "fireba
 import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 import { auth, db } from "@/firebase"; // Assuming you have exported auth and db from firebase.ts
 import { useRouter } from 'next/navigation'
-import { Groups } from "@/types/dashboard";
+import { Toaster, toast } from 'sonner'
 export default function Page() {
     const [user, setUser] = useState<User | null>(null);
     const [authenticated, setAuthenticated] = useState<boolean>(true)
@@ -20,6 +20,23 @@ export default function Page() {
 
         const email = e.currentTarget.email.value;
         const password = e.currentTarget.password.value;
+        // Check if email and password fields are not empty
+        if (!email || !password) {
+            toast.error('Please enter both email and password');
+            return;
+        }
+
+        // Check if password meets complexity requirements
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!passwordRegex.test(password)) {
+            toast.error(`
+                Password must be at least 8 characters long and contain 
+                at least one uppercase letter, one lowercase letter, one digit, 
+                and one special character`
+            );
+            return;
+        }
+
         try {
             //Create new user
             const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
@@ -34,7 +51,6 @@ export default function Page() {
 
             console.log('User Signed up');
 
-
             const incomeData = {
                 types: [{
                     name: 'Paycheck',
@@ -44,7 +60,6 @@ export default function Page() {
                 user_id: auth.currentUser?.uid,
             }
 
-
             // Add the document to a collection
             try {
                 const addDefaultIncome = await addDoc(collection(db, 'income'), incomeData)
@@ -52,15 +67,18 @@ export default function Page() {
             } catch (e) {
                 console.error('Error adding document: ', e)
             } finally {
+                toast.success('Account created successfully');
                 router.push('/dashboard');
             }
 
         } catch (error: any) {
             if (error.code === 'auth/email-already-in-use') {
                 console.log('Email already in use, redirecting to dashboard...');
+                toast.error('Email already in use');
                 router.push('/dashboard');
             } else {
                 console.error('Error signing up:', error);
+                toast.error('Error signing up');
                 // You can show an error message to the user here
             }
         }
@@ -81,7 +99,7 @@ export default function Page() {
     }, [router])
 
 
-    if(!authenticated){
+    if (!authenticated) {
         return (
             <div className="px-5">
                 <ImageWrapper divClassName="w-28 h-28" src="/logo.svg" alt="logo" />
@@ -99,8 +117,9 @@ export default function Page() {
                                 type="email"
                                 name="email"
                                 id="email"
-                                className="h-10  border-2 rounded-md"
+                                className="h-10 p-3  border-2 rounded-md"
                             />
+                            <Toaster richColors duration={2500} position="top-center"/>
                         </div>
                         <div className="flex flex-col">
                             <label className="text-dark font-main" htmlFor="password">Password</label>
@@ -108,11 +127,15 @@ export default function Page() {
                                 type="password"
                                 name="password"
                                 id="password"
-                                className="h-10 border-2 rounded-md"
+                                className="h-10 p-3 border-2 rounded-md"
                             />
                         </div>
 
-                        <Button className="mt-3" text="Create Account" />
+                        <button
+                            type="submit"
+                            className='px-4 mt-3 h-12 bg-blue-primary text-white font-primary rounded-full'>
+                            Create Account
+                        </button>
                     </form>
 
                 </main>
