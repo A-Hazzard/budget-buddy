@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import {useRouter} from 'next/navigation'
-import { auth } from "@/firebase";
+import { auth, db } from "@/firebase";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 export default function Header() {
@@ -13,11 +13,7 @@ export default function Header() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
-        if (user) {
-          setUser(user);
-        } else {
-          setUser(null);
-        }
+        user ? setUser(user) : setUser(null)
       });
     }
   }, []);

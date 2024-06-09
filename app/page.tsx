@@ -12,11 +12,7 @@ export default function Home() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
-        if (user) {
-          setUser(user);
-        } else {
-          setUser(null);
-        }
+        user ? setUser(user) : setUser(null)
       });
     }
   }, []);
@@ -79,7 +75,7 @@ export default function Home() {
 
 
             <p className="mt-3 w-full font-semibold  text-center lg:text-left">
-                With EveryDollar, you can effortlessly plan for all your needs, whether it's saving for a cutting-edge
+                With EveryDollar, you can effortlessly plan for all your needs, whether it&apos;s saving for a cutting-edge
 
                 mermaid costume or stocking up on snacks for a cozy staycation. Customize your budget with unlimited
                 categories!

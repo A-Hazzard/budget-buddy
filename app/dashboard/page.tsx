@@ -19,7 +19,9 @@ export default function Page() {
     const [groups, setGroups] = useState<Groups[]>([])
     const [income, setIncome] = useState<Income[]>([])
     const [user, setUser] = useState<User | null>(null)
-
+    const [totalIncomePlanned, setTotalIncomePlanned] = useState<number>(0);
+    const [totalGroupsPlanned, setTotalGroupsPlanned] = useState<number>(0);
+    const [availableBudget, setAvailableBudget] = useState<number>(0);
     const router = useRouter()
     const data01 = [
         { name: 'Group A', value: 400 },
@@ -70,6 +72,7 @@ export default function Page() {
         await auth.signOut()
         router.push('/login')
     }
+    const formatNumber = (num: number): string => num.toLocaleString("en-US")
 
     useEffect(() => {
         document.addEventListener('click', handleClickOutside, true)
@@ -135,6 +138,29 @@ export default function Page() {
         }
     }, [router])
 
+    useEffect(() => {
+        // Calculate total income planned
+        const incomePlanned = income.reduce((acc, curr) => {
+            const plannedAmount = curr.types?.reduce((a, b) => a + b.planned, 0) || 0;
+            return acc + plannedAmount;
+        }, 0);
+        setTotalIncomePlanned(incomePlanned);
+        console.log(totalIncomePlanned, ' is total income planned')
+
+        // Calculate total groups planned
+        const groupsPlanned = groups.reduce((acc, curr) => {
+            const plannedAmount = curr.types?.reduce((a, b) => a + b.planned, 0) || 0;
+            return acc + plannedAmount;
+        }, 0);
+        setTotalGroupsPlanned(groupsPlanned);
+        console.log(totalGroupsPlanned, ' is total group planned')
+
+
+        // Calculate available budget
+        const budget = incomePlanned - groupsPlanned;
+        setAvailableBudget(budget);
+    }, [groups, income, totalGroupsPlanned, totalIncomePlanned]);
+
 
     if (user) {
         return (
@@ -142,10 +168,18 @@ export default function Page() {
                 <header className="px-5 pb-3 sticky flex items-end top-0 z-50 w-full bg-white shadow-md">
                     <div className="w-full">
                         <button onClick={logOut}>Logout</button>
-                        <h1 className="text-left">June 2024</h1>
-                        <p className="font-semibold">
-                            $1,800.00 <span className="font-light">left to budget</span>
-                        </p>
+                        <h1 className="text-left">
+                            {new Date().toLocaleString('default', { month: 'long', year: 'numeric'})}
+                            </h1>
+                        <div className="flex gap-1">
+
+                            <p className={`font-main font-semibold ${availableBudget < 0 ? 'text-red-500' : 'text-green-500'}`}>
+                                ${formatNumber(availableBudget)}
+                            </p>
+                            <p className="font-light">
+                                left to budget
+                            </p>
+                        </div>
                     </div>
 
                     <Link href="/">
