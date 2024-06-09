@@ -39,7 +39,7 @@ export default function Page() {
             toast.error('Too many login attempts, please try again later');
         } else {
             console.error("Error logging in:", error);
-            toast.error('Error logging in');
+            toast.error('Invalid email or password');
         }
     }
 }
