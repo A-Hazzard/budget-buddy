@@ -4,11 +4,13 @@ import AddItem from "./AddItem";
 import { collection, onSnapshot, query, updateDoc, where, doc, arrayUnion } from "firebase/firestore";
 import { db } from "@/firebase";
 import { Income } from "@/types/dashboard";
+import { Trash2 } from "lucide-react";
 
 export default function IncomeTable({ userID }: { userID: string }) {
     const [income, setIncome] = useState<Income[]>([]);
     const [addIncome, setAddIncome] = useState<boolean>(false);
-
+    const [editIncome, setEditIncome] = useState<boolean>(false);
+    const [currentId, setCurrentId] = useState<number | null>(null);
     const nameInputRef = useRef<HTMLInputElement>(null);
     const plannedInputRef = useRef<HTMLInputElement>(null);
     const spentInputRef = useRef<HTMLInputElement>(null);
@@ -41,19 +43,20 @@ export default function IncomeTable({ userID }: { userID: string }) {
         acc + (inc.types?.reduce((innerAcc, type) => innerAcc + (type.spent || 0), 0) ?? 0)
         , 0);
 
-    const formatNumber = (num: number): string => num.toLocaleString('en-US');
+    const formatNumber: any = (num: number): string => num.toLocaleString('en-US');
 
     const addItem = async (event: MouseEvent) => {
         if (tableRef.current && !tableRef.current.contains(event.target as Node)) {
+
             const nameValue = nameInputRef.current ? nameInputRef.current.value : "";
             const plannedValue = plannedInputRef.current ? plannedInputRef.current.value : "";
             const spentValue = spentInputRef.current ? spentInputRef.current.value : "";
-
             const newType = {
                 name: nameValue,
                 planned: parseFloat(plannedValue.replace(/[^0-9.-]+/g, '')) || 0,
                 spent: parseFloat(spentValue.replace(/[^0-9.-]+/g, '')) || 0,
             };
+            console.log(newType)
 
             try {
                 // Assuming there's only one document per user, get the first document's ID
@@ -62,7 +65,7 @@ export default function IncomeTable({ userID }: { userID: string }) {
                     //@ts-ignore
                     const incomeDocRef = doc(db, "income", incomeDocId);
                     await updateDoc(incomeDocRef, {
-                        types: arrayUnion(newType)
+                        types: [...(income[0].types || []), newType]
                     });
                     console.log('Income type added');
                 } else {
@@ -99,11 +102,17 @@ export default function IncomeTable({ userID }: { userID: string }) {
                 <tbody>
                     {income.map((inc, incomeIndex) => (
                         inc.types?.map((type, typeIndex) => (
-                            <tr key={`${incomeIndex}-${typeIndex}`}>
-                                <td className="py-2 border-b">{type.name}</td>
-                                <td className="py-2 border-b">${formatNumber(type.planned)}</td>
-                                <td className="py-2 border-b">${formatNumber(type.spent)}</td>
-                            </tr>
+                        
+                                <tr
+                                    onClick={() => {
+                                        setEditIncome(true)
+                                        setCurrentId(typeIndex)
+                                    }}
+                                    key={`${incomeIndex}-${typeIndex}`}>
+                                    <td className="py-2 border-b cursor-pointer">{type.name}</td>
+                                    <td className="py-2 border-b cursor-pointer">${formatNumber(type.planned)}</td>
+                                    <td className="py-2 border-b cursor-pointer">${formatNumber(type.spent)}</td>
+                                </tr>
                         ))
                     ))}
 

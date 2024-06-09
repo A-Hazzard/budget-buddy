@@ -1,23 +1,27 @@
+import { Trash2 } from "lucide-react";
 import { RefObject } from "react"
 export default function AddItem({
     tableRef,
     nameInputRef,
     plannedInputRef,
     spentInputRef,
-    defaultItem
+    defaultItem,
+    editable
     
 }: {
     tableRef: RefObject<HTMLTableRowElement>;
     nameInputRef: RefObject<HTMLInputElement>;
     plannedInputRef: RefObject<HTMLInputElement>;
     spentInputRef: RefObject<HTMLInputElement>;
-    defaultItem: string
+    defaultItem: string,
+    editable?: boolean
 }) {
 
 
     return (
         <tr className="shadow-xl px-2" ref={tableRef}>
-            <td className="p-2 border-b">
+            <td className={`p-2 border-b ${editable && 'flex gap-3 items-center'}`}>
+                {editable && <Trash2 />}
                 <input
                     type="text"
                     name="name"

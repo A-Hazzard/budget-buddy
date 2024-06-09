@@ -32,7 +32,7 @@ export default function GroupTable({ title, groupID, types }: { title: string, g
         const groupDocId = groupID;
         const groupDocRef = doc(db, "budgetItem", groupDocId);
         await updateDoc(groupDocRef, {
-          types: arrayUnion(newType)
+          types: [...(types || []), newType]
         });
         console.log('Budget item updated with new type');
       } catch (e) {
