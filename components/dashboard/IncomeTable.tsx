@@ -142,9 +142,12 @@ export default function IncomeTable({ userID }: { userID: string }) {
                     </tr>
                 </thead>
                 <tbody>
-                    {income.map((inc, incomeIndex) => (
-                        inc.types?.map((type, typeIndex) => (
-                            editIncome && currentId === typeIndex ? (
+                    {income.map((inc, incomeIndex) =>
+                        inc.types?.map((type, typeIndex) =>
+                            editIncome &&
+                                inc.types?.[typeIndex] &&
+                                inc.types?.[typeIndex] &&
+                                currentId === typeIndex ? (
                                 <>
                                     <AddItem
                                         tableRef={tableRef}
@@ -153,7 +156,10 @@ export default function IncomeTable({ userID }: { userID: string }) {
                                         spentInputRef={spentInputRef}
                                         defaultItem="Paycheck"
                                         editable={true}
-                                        types={inc.types}
+                                        types={inc.types || []}
+                                        name={inc.types?.[typeIndex].name || 'Paycheck'}
+                                        planned={inc.types?.[typeIndex].planned}
+                                        spent={inc.types?.[typeIndex].spent}
                                         typeIndex={typeIndex}
                                         id={inc.id}
                                     />
@@ -161,17 +167,18 @@ export default function IncomeTable({ userID }: { userID: string }) {
                             ) : (
                                 <tr
                                     onClick={() => {
-                                        setEditIncome(true)
-                                        setCurrentId(typeIndex)
+                                        setEditIncome(true);
+                                        setCurrentId(typeIndex);
                                     }}
-                                    key={`${incomeIndex}-${typeIndex}`}>
+                                    key={`${incomeIndex}-${typeIndex}`}
+                                >
                                     <td className="py-2 border-b cursor-pointer">{type.name}</td>
                                     <td className="py-2 border-b cursor-pointer">${formatNumber(type.planned)}</td>
                                     <td className="py-2 border-b cursor-pointer">${formatNumber(type.spent)}</td>
                                 </tr>
-                            )
-                        ))
-                    ))}
+                            ),
+                        ),
+                    )}
 
                     {addIncome && (
                         <AddItem
@@ -180,6 +187,7 @@ export default function IncomeTable({ userID }: { userID: string }) {
                             plannedInputRef={plannedInputRef}
                             spentInputRef={spentInputRef}
                             defaultItem="Paycheck"
+
                         />
                     )}
                 </tbody>

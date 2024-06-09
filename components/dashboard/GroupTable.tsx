@@ -122,6 +122,9 @@ export default function GroupTable(
                   defaultItem="Item"
                   editable={true}
                   types={types}
+                  name={types?.[key].name || 'Item'}
+                  planned={types?.[key].planned || 0}
+                  spent={types?.[key].spent || 0}
                   typeIndex={key}
                   id={groupID}
                 />

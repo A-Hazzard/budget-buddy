@@ -11,9 +11,11 @@ export default function AddItem({
     defaultItem,
     editable,
     types,
+    name,
     typeIndex,
+    planned,
+    spent,
     id
-
 }: {
     tableRef: RefObject<HTMLTableRowElement>;
     nameInputRef: RefObject<HTMLInputElement>;
@@ -22,6 +24,9 @@ export default function AddItem({
     defaultItem: string,
     editable?: boolean
     types?: Types[],
+    name?: string,
+    planned?: number,
+    spent?: number,
     typeIndex?: number,
     id?: string
 }) {
@@ -53,8 +58,7 @@ export default function AddItem({
             console.error('Error removing element from array: ', error);
         }
     };
-
-
+    console.log(types, 'is types')
     return (
         <tr className="shadow-xl px-2" ref={tableRef}>
             <td className={`p-2 border-b ${editable && 'flex gap-3 items-center'}`}>
@@ -63,7 +67,7 @@ export default function AddItem({
                     type="text"
                     name="name"
                     id="name"
-                    defaultValue={defaultItem}
+                    defaultValue={editable ? name : defaultItem}
                     className="w-full p-2 font-main border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500"
                     ref={nameInputRef}
                 />
@@ -73,7 +77,7 @@ export default function AddItem({
                     type="text"
                     name="planned"
                     id="planned"
-                    defaultValue="$0.00"
+                    defaultValue={`$${planned || 0}`}
                     className="w-full p-2 border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500"
                     ref={plannedInputRef}
                 />
@@ -83,7 +87,7 @@ export default function AddItem({
                     type="text"
                     name="spent"
                     id="spent"
-                    defaultValue="$0.00"
+                    defaultValue={`$${spent || 0}`}
                     className="w-full p-2 border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500"
                     ref={spentInputRef}
                 />
