@@ -1,9 +1,7 @@
 ---
-title: Example Guide
+title: Introduction
 description: Intro.
 ---
-
-# Budget Buddy Documentation
 
 Welcome to the Budget Buddy documentation site. Here you will find all the necessary information to get started with the project, including setup instructions and a detailed project report.
 
