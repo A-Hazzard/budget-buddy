@@ -12,55 +12,69 @@ import IncomeTable from "@/components/dashboard/IncomeTable"
 import { auth, db } from '@/firebase'
 import { FirebaseError } from "firebase/app"
 import { onAuthStateChanged, User } from 'firebase/auth'
-import { collection, onSnapshot, query, where } from "firebase/firestore"
+import { addDoc, collection, onSnapshot, orderBy, query, where } from "firebase/firestore"
 import { useRouter } from 'next/navigation'
 
 export default function Page() {
-    const [groups, setGroups] = useState<Groups[]>([]);
-    const [income, setIncome] = useState<Income[]>([]);
-    const [user, setUser] = useState<User | null>(null);
+    const [groups, setGroups] = useState<Groups[]>([])
+    const [income, setIncome] = useState<Income[]>([])
+    const [user, setUser] = useState<User | null>(null)
 
     const router = useRouter()
     const data01 = [
         { name: 'Group A', value: 400 },
         { name: 'Group B', value: 300 },
-    ];
+    ]
     const data02 = [
         { name: 'A1', value: 100 },
         { name: 'A2', value: 300 },
-    ];
-    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+    ]
+    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
 
-    const [addGroup, setAddGroup] = useState<boolean>(false);
+    const [addGroup, setAddGroup] = useState<boolean>(false)
 
-    const [newGroupTitle, setNewGroupTitle] = useState<string>('');
+    const [newGroupTitle, setNewGroupTitle] = useState<string>('')
 
-    const buttonRef = useRef<HTMLInputElement>(null);
+    const buttonRef = useRef<HTMLInputElement>(null)
 
     //Create new empty group with inputted title when user presses the enter key
-    const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = async (event: KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter' && newGroupTitle.trim() !== '') {
-            const newGroup = {
+
+
+            const groupData: Groups = {
                 title: newGroupTitle,
                 types: [],
-            };
-            setGroups([...groups, newGroup]);
-            setNewGroupTitle('');
+                user_id: auth.currentUser?.uid,
+            }
+
+
+            // Add the document to a collection
+            try {
+                const addBudgetItem = await addDoc(collection(db, 'budgetItem'), groupData)
+                console.log('Document written')
+            } catch (e) {
+                console.error('Error adding document: ', e)
+            } finally {
+                setAddGroup(false)
+                setNewGroupTitle('')
+            }
+
         }
-    };
+    }
 
     //Remove the add groups input field when user clicks anywhere besides the input field
-    const handleClickOutside = (event: MouseEvent) => buttonRef.current && !buttonRef.current.contains(event.target as Node) ? setAddGroup(false) : null;
+    const handleClickOutside = (event: MouseEvent) => buttonRef.current && !buttonRef.current.contains(event.target as Node) ? setAddGroup(false) : null
 
     const logOut = async () => {
-        await auth.signOut();
-        router.push('/login');
-    };
+        await auth.signOut()
+        router.push('/login')
+    }
 
     useEffect(() => {
-        document.addEventListener('click', handleClickOutside, true);
-        return () => document.removeEventListener('click', handleClickOutside, true);
-    }, []);
+        document.addEventListener('click', handleClickOutside, true)
+        return () => document.removeEventListener('click', handleClickOutside, true)
+    }, [])
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -77,41 +91,41 @@ export default function Page() {
             // Subscribe to Firebase Auth state changes
             const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    console.log(`${user.email}'s user ID is '${user.uid}'`);
+                    console.log(`${user.email}'s user ID is '${user.uid}'`)
                     // Query Firestore for budget items where user_id matches the current user's UID
-                    const budgetQuery = query(collection(db, 'budgetItem'), where('user_id', '==', user.uid));
-                    const incomeQuery = query(collection(db, 'income'), where('user_id', '==', user.uid));
+                    const budgetQuery = query(collection(db, 'budgetItem'), where('user_id', '==', user.uid))
+                    const incomeQuery = query(collection(db, 'income'), where('user_id', '==', user.uid))
                     // Subscribe to Firestore query snapshot changes
                     const unsubscribeBudget = onSnapshot(budgetQuery, (querySnapshot) => {
                         // Map query snapshot documents to an array of objects
                         const docsList = querySnapshot.docs.map((doc) => ({
                             id: doc.id,
                             ...doc.data(),
-                        }));
+                        }))
                         // Update the budgetItems state with the fetched documents
-                        setGroups(docsList as Groups[]);
+                        setGroups(docsList as Groups[])
                     },
                         (error: FirebaseError) => console.error(`Error fetching documents: ${error.code}`)
-                    );
+                    )
 
                     const unsubscribeIncome = onSnapshot(incomeQuery, (querySnapshot) => {
                         // Map query snapshot documents to an array of objects
                         const docsList = querySnapshot.docs.map((doc) => ({
                             id: doc.id,
                             ...doc.data(),
-                        }));
+                        }))
                         // Update the Income state with the fetched documents
-                        setIncome(docsList as Income[]);
+                        setIncome(docsList as Income[])
                     },
                         (error: FirebaseError) => console.error(`Error fetching documents: ${error.code}`)
-                    );
+                    )
 
                     // Cleanup Firestore subscription when the component unmounts
-                    return () => unsubscribeIncome();
+                    return () => unsubscribeIncome()
                 } else {
                     // Handle case when user is not authenticated
                 }
-            });
+            })
 
             //Clean up sub & unsubscribe on unmount
             return () => {
@@ -221,6 +235,6 @@ export default function Page() {
                     </div>
                 </main>
             </div>
-        );
+        )
     }
 }

@@ -6,9 +6,10 @@ import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 //@ts-ignore
 import { User, onAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 import { auth, db } from "@/firebase"; // Assuming you have exported auth and db from firebase.ts
 import { useRouter } from 'next/navigation'
+import { Groups } from "@/types/dashboard";
 export default function Page() {
     const [user, setUser] = useState<User | null>(null);
     const [authenticated, setAuthenticated] = useState<boolean>(true)
@@ -32,7 +33,28 @@ export default function Page() {
             });
 
             console.log('User Signed up');
-            router.push('/dashboard');
+
+
+            const incomeData = {
+                types: [{
+                    name: 'Paycheck',
+                    planned: 0,
+                    spent: 0
+                }],
+                user_id: auth.currentUser?.uid,
+            }
+
+
+            // Add the document to a collection
+            try {
+                const addDefaultIncome = await addDoc(collection(db, 'income'), incomeData)
+                console.log('Document written')
+            } catch (e) {
+                console.error('Error adding document: ', e)
+            } finally {
+                router.push('/dashboard');
+            }
+
         } catch (error: any) {
             if (error.code === 'auth/email-already-in-use') {
                 console.log('Email already in use, redirecting to dashboard...');
