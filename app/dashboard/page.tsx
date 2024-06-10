@@ -16,6 +16,7 @@ import { addDoc, collection, getDocs, onSnapshot, query, updateDoc, where } from
 import { useRouter } from 'next/navigation'
 import * as XLSX from 'xlsx'
 import randomColor from 'randomcolor';
+import ChatButton from "@/components/dashboard/ChatButton"
 
 export default function Page() {
     const [groups, setGroups] = useState<Groups[]>([])
@@ -411,6 +412,8 @@ export default function Page() {
                             <CloudDownload /> <p className="text-base text-blue-600">Download as CSV</p>
                         </div>
                     </div>
+
+                    <ChatButton />
                 </main>
             </div>
         )

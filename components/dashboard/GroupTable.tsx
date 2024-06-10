@@ -3,6 +3,7 @@ import AddItem from "./AddItem"
 import { doc, updateDoc, arrayUnion, getDoc } from "firebase/firestore"
 import { db } from "@/firebase"
 import { Types } from "@/types/dashboard"
+import { Trash2 } from "lucide-react"
 
 export default function GroupTable(
   {
@@ -19,8 +20,9 @@ export default function GroupTable(
   const [addIncome, setAddIncome] = useState<boolean>(false)
   const [editGroup, setEditGroup] = useState<boolean>(false)
   const [currentId, setCurrentId] = useState<number>(0)
-
+  const [editBudgetItem, setBudgetItem] = useState<boolean>(false)
   const nameInputRef = useRef<HTMLInputElement>(null)
+  const titleInputRef = useRef<HTMLInputElement>(null)
   const plannedInputRef = useRef<HTMLInputElement>(null)
   const spentInputRef = useRef<HTMLInputElement>(null)
   const tableRef = useRef<HTMLTableRowElement>(null)
@@ -80,7 +82,7 @@ export default function GroupTable(
         const groupDocId = groupID
         const groupDocRef = doc(db, "budgetItem", groupDocId)
         replaceElement(types, currentId, newType)
-        await updateDoc(groupDocRef, {types})
+        await updateDoc(groupDocRef, { types })
         console.log('Budget item updated with new type')
       } catch (e) {
         console.error("Error updating document: ", e)
@@ -88,23 +90,83 @@ export default function GroupTable(
       setEditGroup(false)
     }
   }
+  const closeEditBudgetItem = async (event: MouseEvent) => {
+    if (editBudgetItem && titleInputRef.current && !titleInputRef.current.contains(event.target as Node)) {
+      const titleValue = titleInputRef.current ? titleInputRef.current.value : ""
+      console.log(titleValue, ' is title')
+      try {
+        const groupDocRef = doc(db, "budgetItem", groupID)
+        await updateDoc(groupDocRef, { title: titleValue })
+        console.log('Budget Title updated')
+      } catch (e) {
+        console.error("Error updating document: ", e)
+      }
+      setBudgetItem(false)
+    }
+  }
+
+  const removeElementFromArray = async () => {
+    try {
+        //@ts-ignore
+        const documentRef = doc(db, 'income', id); // Replace 'your_collection' with the actual collection name
+        //@ts-ignore
+        const newTypes = types?.splice(typeIndex, 1);
+        // Update the document by removing the specified element from the array
+        await updateDoc(documentRef, {
+          "types": types
+        });
+
+      console.log('Group removed from array successfully!');
+    } catch (error) {
+      console.error('Error removing element from array: ', error);
+    }
+  };
   useEffect(() => {
     document.addEventListener('click', addItem, true)
     document.addEventListener('click', closeEditUI, true)
+    document.addEventListener('click', closeEditBudgetItem, true)
     return () => {
       document.removeEventListener('click', addItem, true)
       document.removeEventListener('click', closeEditUI, true)
+      document.removeEventListener('click', closeEditBudgetItem, true)
     }
   })
 
   return (
     <div className="w-full max-w-sm mx-auto bg-white shadow-md rounded-lg p-4">
       <div className="mb-4"></div>
+
       <table className="w-full text-left">
         <thead>
           <tr>
             <th className="border-b-2 py-2">
-              <h2 className="text-sm text-left font-semibold text-[#0088FE]">{title}</h2>
+              {editBudgetItem ? (
+                <div className="flex gap-1 items-center">
+                  <Trash2 
+                    // onClick={removeElementFromArray} 
+                    className="w-6 h-6 text-red-500 cursor-pointer" 
+                  />
+
+                  <input
+                    type="text"
+                    name="title"
+                    id="name"
+                    defaultValue={title}
+                    className="w-[50%] p-2 font-main border-2 font-semibold rounded-md focus:bg-blue-200 text-blue-500"
+                    ref={titleInputRef}
+                  />
+                </div>
+              ) : (
+                <>
+                    <h2
+                      onClick={() => setBudgetItem(true)}
+                    className="text-sm text-left cursor-pointer font-semibold text-[#0088FE]">
+                      {title}
+                    </h2>
+                </>
+              
+            )}
+              
             </th>
             <th className="border-b-2 py-2">Planned</th>
             <th className="border-b-2 py-2">Spent</th>
