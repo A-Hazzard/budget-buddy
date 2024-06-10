@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { User, onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/firebase";
 import { Toaster, toast } from 'sonner'
+import { dashboardRedirect } from "@/helper/auth";
 
 export default function Page() {
     const [user, setUser] = useState<User | null>(null);
@@ -45,15 +46,8 @@ export default function Page() {
 }
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
+        dashboardRedirect(setUser, setAuthenticated, router)
 
-        const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
-            if (user) {
-                setUser(user);
-                router.push('/dashboard')
-            } else setAuthenticated(false)
-        });
-    }
     }, [router])
 
     if (!authenticated) {

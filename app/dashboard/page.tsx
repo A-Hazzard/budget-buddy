@@ -17,15 +17,24 @@ import { useRouter } from 'next/navigation'
 import * as XLSX from 'xlsx'
 import randomColor from 'randomcolor';
 import ChatButton from "@/components/dashboard/ChatButton"
+import ChatBot from '@/components/ChatBot';
+import { loginRedirect } from "@/helper/auth"
 
 export default function Page() {
+    const [user, setUser] = useState<User | null>(null)
     const [groups, setGroups] = useState<Groups[]>([])
     const [income, setIncome] = useState<Income[]>([])
-    const [user, setUser] = useState<User | null>(null)
     const [totalIncomePlanned, setTotalIncomePlanned] = useState<number>(0);
     const [totalGroupsPlanned, setTotalGroupsPlanned] = useState<number>(0);
     const [availableBudget, setAvailableBudget] = useState<number>(0);
+    const [addGroup, setAddGroup] = useState<boolean>(false)
+    const [newGroupTitle, setNewGroupTitle] = useState<string>('')
+
+
+    const buttonRef = useRef<HTMLInputElement>(null)
+
     const router = useRouter()
+
 
     const getRandomColor = () => {
         return randomColor({
@@ -33,22 +42,15 @@ export default function Page() {
             format: 'rgba',
             alpha: 0.8,
         });
-    }; const incomeData = income.flatMap((incomeItem) =>
+    }; 
+    const incomeData = income.flatMap((incomeItem) =>
         incomeItem.types?.map((type) => ({ name: type.name, value: type.planned })) || []
     );
-
     const groupData = groups.map((group) => ({
         name: group.title,
         value: group.types?.reduce((sum, type) => sum + type.planned, 0) || 0,
     }));
-
     const data01 = [...incomeData, ...groupData];
-
-    const [addGroup, setAddGroup] = useState<boolean>(false)
-
-    const [newGroupTitle, setNewGroupTitle] = useState<string>('')
-
-    const buttonRef = useRef<HTMLInputElement>(null)
 
     //Create new empty group with inputted title when user presses the enter key
     const handleKeyDown = async (event: KeyboardEvent<HTMLInputElement>) => {
@@ -75,7 +77,6 @@ export default function Page() {
 
         }
     }
-
     //Remove the add groups input field when user clicks anywhere besides the input field
     const handleClickOutside = (event: MouseEvent) => buttonRef.current && !buttonRef.current.contains(event.target as Node) ? setAddGroup(false) : null
 
@@ -226,8 +227,6 @@ export default function Page() {
         }
     };
 
-
-
     const formatNumber = (num: number): string => num.toLocaleString("en-US")
 
     useEffect(() => {
@@ -238,14 +237,7 @@ export default function Page() {
     useEffect(() => {
         if (typeof window !== 'undefined') {
 
-            const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
-                if (user) {
-                    setUser(user)
-                } else {
-                    setUser(null)
-                    router.push('/login')
-                }
-            })
+            loginRedirect(setUser, router);
 
             // Subscribe to Firebase Auth state changes
             const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -289,7 +281,7 @@ export default function Page() {
             //Clean up sub & unsubscribe on unmount
             return () => {
                 unsubscribeAuth()
-                unsubscribe()
+                loginRedirect(setUser, router)
             }
         }
     }, [router])
@@ -413,7 +405,10 @@ export default function Page() {
                         </div>
                     </div>
 
-                    <ChatButton />
+                    {/* <ChatButton />
+                     */}
+                    <ChatBot />
+
                 </main>
             </div>
         )

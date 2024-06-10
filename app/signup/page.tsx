@@ -10,6 +10,7 @@ import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 import { auth, db } from "@/firebase"; // Assuming you have exported auth and db from firebase.ts
 import { useRouter } from 'next/navigation'
 import { Toaster, toast } from 'sonner'
+import {dashboardRedirect} from "@/helper/auth";
 export default function Page() {
     const [user, setUser] = useState<User | null>(null);
     const [authenticated, setAuthenticated] = useState<boolean>(true)
@@ -85,17 +86,7 @@ export default function Page() {
     }
 
     useEffect(() => {
-        // Ensure Firebase Auth code runs only in the client-side
-        if (typeof window !== 'undefined') {
-            const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
-                if (user) {
-                    setUser(user);
-                    router.push('/dashboard')
-                } else {
-                    setAuthenticated(false);
-                }
-            });
-        }
+        dashboardRedirect(setUser, setAuthenticated, router)
     }, [router])
 
 
