@@ -124,14 +124,14 @@ export default function Page() {
 
                         <button
                             type="submit"
-                            className='px-4 mt-3 h-12 bg-blue-primary text-white font-primary rounded-full'>
+                            className='px-4 mt-3 h-12 bg-green-primary text-white font-primary rounded-full'>
                             Create Account
                         </button>
                     </form>
 
                 </main>
                 <p className="text-center mt-5 font-semibold">
-                    Already have an account? <Link className="text-blue-primary" href="/login">Login.</Link>
+                    Already have an account? <Link className="text-green-primary" href="/login">Login.</Link>
                 </p>
             </div>
         )

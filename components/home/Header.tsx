@@ -32,7 +32,7 @@ export default function Header() {
         </div>
       <button
         onClick={()=> user ? router.push('/dashboard') : router.push('/signup')}
-        className={`px-4 h-12 bg-blue-primary text-white font-primary rounded-full`}>
+        className={`px-4 h-12 bg-green-primary text-white font-primary rounded-full`}>
         {user ? "Go to Dashboard" : "Create Account"}
       </button>
     </header>

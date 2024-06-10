@@ -86,17 +86,17 @@ export default function Page() {
 
                         <button
                             type="submit"
-                            className='px-4 h-12 bg-blue-primary text-white font-primary rounded-full  mt-3'>
+                            className='px-4 h-12 bg-green-primary text-white font-primary rounded-full  mt-3'>
                                 Sign In
                         </button>
-                        <Link className="mt-3 text-blue-primary font-semibold text-center" href="/reset">Forgot Password?</Link>
+                        <Link className="mt-3 text-green-primary font-semibold text-center" href="/reset">Forgot Password?</Link>
 
                     </form>
 
                 </main>
 
                 <p className="text-center mt-5 font-semibold">
-                    Don&apos;t have an account? <Link className="text-blue-primary" href="/signup">Create an account.</Link>
+                    Don&apos;t have an account? <Link className="text-green-primary" href="/signup">Create an account.</Link>
                 </p>
             </div>
         )
