@@ -337,74 +337,80 @@ export default function Page() {
 
                 <hr />
 
-                <main className="px-5 flex flex-col gap-5">
-                    <ResponsiveContainer width="100%" height={400}>
-                        <PieChart>
-                            <Pie
-                                data={data01}
-                                dataKey="value"
-                                nameKey="name"
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={80}
-                                fill="#8884d8"
-                                label
-                            >
-                                {data01.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={getRandomColor()} />
-                                ))}
-                            </Pie>
-                        </PieChart>
-                    </ResponsiveContainer>
+                <main className="lg:pl-20 px-5 flex flex-col lg:flex-row-reverse lg:justify-center gap-5">
+                    <div>
+                        <ResponsiveContainer width="100%" height={200}>
+                            <PieChart>
+                                <Pie
+                                    data={data01}
+                                    dataKey="value"
+                                    nameKey="name"
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={80}
+                                    fill="#8884d8"
+                                    label
+                                >
+                                    {data01.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={getRandomColor()} />
+                                    ))}
+                                </Pie>
+                            </PieChart>
+                        </ResponsiveContainer>
 
-
-
-                    <IncomeTable userID={user.uid} />
-
-                    {groups.map((group, key) => (
-                        <div key={key}>
-                            <GroupTable
-                                groupId={group.id || ''}
-                                key={key}
-                                title={group.title}
-                                types={group.types ?? []}
-                            />
-                        </div>
-                    ))}
-
-                    {addGroup ? (
-                        <div className="p-5 shadow-md">
-                            <input
-                                ref={buttonRef}
-                                type="text"
-                                name="title"
-                                id="title"
-                                placeholder="Group Name"
-                                value={newGroupTitle}
-                                onChange={(e: ChangeEvent<HTMLInputElement>) => setNewGroupTitle(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                className="w-full h-12 p-3 font-main border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
-                            />
-                        </div>
-                    ) : (
-                        <button
-                            onClick={() => setAddGroup(true)}
-                            className="p-5 text-blue-600 text-lg font-semibold flex flex-start border border-dotted border-blue-400 rounded-lg"
-                        >
-                            <PlusIcon /> ADD GROUP
-                        </button>
-                    )}
-
-                    <div className="mx-auto flex flex-row items-center gap-2 mt-4">
-                        <div onClick={resetBudget} className="flex flex-row text-blue-600 items-center cursor-pointer gap-3">
-                            <RotateCw /> <p className="text-base text-blue-600">Reset Budget</p>
-                        </div>
-                        <div onClick={generateExcelData} className="flex flex-row text-blue-600 items-center cursor-pointer gap-2">
-
-                            <CloudDownload /> <p className="text-base text-blue-600">Download as CSV</p>
-                        </div>
+                        <h2>Data Summary</h2>
                     </div>
 
+
+
+                    <div className="flex flex-col gap-5">
+                        <IncomeTable userID={user.uid} />
+
+                        {groups.map((group, key) => (
+                            <div key={key}>
+                                <GroupTable
+                                    groupId={group.id || ''}
+                                    key={key}
+                                    title={group.title}
+                                    types={group.types ?? []}
+                                />
+                            </div>
+                        ))}
+
+                        {addGroup ? (
+                            <div className="p-5 shadow-md">
+                                <input
+                                    ref={buttonRef}
+                                    type="text"
+                                    name="title"
+                                    id="title"
+                                    placeholder="Group Name"
+                                    value={newGroupTitle}
+                                    onChange={(e: ChangeEvent<HTMLInputElement>) => setNewGroupTitle(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                    className="w-full h-12 p-3 font-main border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                />
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => setAddGroup(true)}
+                                className="p-5 text-blue-600 text-lg font-semibold flex flex-start border border-dotted border-blue-400 rounded-lg"
+                            >
+                                <PlusIcon /> ADD GROUP
+                            </button>
+                        )}
+
+                        <div className="mx-auto flex flex-row items-center gap-2 mt-4">
+                            <div onClick={resetBudget} className="flex flex-row text-blue-600 items-center cursor-pointer gap-3">
+                                <RotateCw /> <p className="text-base text-blue-600">Reset Budget</p>
+                            </div>
+                            <div onClick={generateExcelData} className="flex flex-row text-blue-600 items-center cursor-pointer gap-2">
+
+                                <CloudDownload /> <p className="text-base text-blue-600">Download as CSV</p>
+                            </div>
+                        </div>
+
+                    </div>
                     {/* <ChatButton />
                      */}
                     <ChatBot />
