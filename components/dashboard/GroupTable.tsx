@@ -1,18 +1,18 @@
 import { useEffect, useRef, useState } from "react"
 import AddItem from "./AddItem"
-import { doc, updateDoc, arrayUnion, getDoc } from "firebase/firestore"
+import { doc, updateDoc, arrayUnion, getDoc, deleteDoc } from "firebase/firestore"
 import { db } from "@/firebase"
 import { Types } from "@/types/dashboard"
 import { Trash2 } from "lucide-react"
 
 export default function GroupTable(
   {
-    groupID,
+    groupId,
     key,
     title,
     types
   }: {
-    groupID: string,
+    groupId: string,
     key: number,
     title: string,
     types: Types[]
@@ -44,7 +44,7 @@ export default function GroupTable(
       }
 
       try {
-        const groupDocId = groupID
+        const groupDocId = groupId
         const groupDocRef = doc(db, "budgetItem", groupDocId)
         await updateDoc(groupDocRef, {
           types: [...(types || []), newType]
@@ -79,7 +79,7 @@ export default function GroupTable(
       }
 
       try {
-        const groupDocId = groupID
+        const groupDocId = groupId
         const groupDocRef = doc(db, "budgetItem", groupDocId)
         replaceElement(types, currentId, newType)
         await updateDoc(groupDocRef, { types })
@@ -95,7 +95,7 @@ export default function GroupTable(
       const titleValue = titleInputRef.current ? titleInputRef.current.value : ""
       console.log(titleValue, ' is title')
       try {
-        const groupDocRef = doc(db, "budgetItem", groupID)
+        const groupDocRef = doc(db, "budgetItem", groupId)
         await updateDoc(groupDocRef, { title: titleValue })
         console.log('Budget Title updated')
       } catch (e) {
@@ -105,16 +105,11 @@ export default function GroupTable(
     }
   }
 
-  const removeElementFromArray = async () => {
+  const deleteBudgetItem = async () => {
     try {
         //@ts-ignore
-        const documentRef = doc(db, 'income', id); // Replace 'your_collection' with the actual collection name
-        //@ts-ignore
-        const newTypes = types?.splice(typeIndex, 1);
-        // Update the document by removing the specified element from the array
-        await updateDoc(documentRef, {
-          "types": types
-        });
+        const documentRef = doc(db, 'budgetItem', groupId);
+        await deleteDoc(documentRef);
 
       console.log('Group removed from array successfully!');
     } catch (error) {
@@ -143,7 +138,7 @@ export default function GroupTable(
               {editBudgetItem ? (
                 <div className="flex gap-1 items-center">
                   <Trash2 
-                    // onClick={removeElementFromArray} 
+                    onClick={deleteBudgetItem} 
                     className="w-6 h-6 text-red-500 cursor-pointer" 
                   />
 
@@ -188,7 +183,7 @@ export default function GroupTable(
                   planned={types?.[key].planned || 0}
                   spent={types?.[key].spent || 0}
                   typeIndex={key}
-                  id={groupID}
+                  id={groupId}
                 />
               </>
             ) : (

@@ -372,7 +372,7 @@ export default function Page() {
                     {groups.map((group, key) => (
                         <div key={key}>
                             <GroupTable
-                                groupID={group.id || ''}
+                                groupId={group.id || ''}
                                 key={key}
                                 title={group.title}
                                 types={group.types ?? []}
