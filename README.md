@@ -62,12 +62,3 @@ Once the application is running, you can create an account or log in to start ma
 ## Contributing
 
 Contributions are welcome! If you have suggestions for improvements or new features, feel free to open an issue or submit a pull request.
-
-## Acknowledgments
-
-- Thanks to the creators of the libraries and tools used in this project.
-- Special thanks to the open-source community for their contributions.
-
-## Contact
-
-For any inquiries, please reach out to [your-email@example.com](mailto:your-email@example.com).
